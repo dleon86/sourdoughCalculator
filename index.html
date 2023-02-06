@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Dough Recipe Calculator</title>
+  <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="container">
+  <h1 style="text-align: center; font-family: sans-serif;">Dough Recipe Calculator</h1>
+  <table id="inputs">
+    <thead>
+    <tr>
+      <th>Final Mass (g)</th>
+      <th>Flour 1 (%)</th>
+      <th>Flour 2 (%)</th>
+<!--      <th>Flour 3 (%)</th>-->
+      <th>Hydration (%)</th>
+      <th>Salt (%)</th>
+      <th>Starter (%)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><input id="final-mass" type="number" value="750"></td>
+      <td><input id="flour1-percent" type="number" value="80"></td>
+      <td><input id="flour2-percent" type="number" value="20"></td>
+<!--      <td><input id="flour3-percent" type="number" value="0"></td>-->
+      <td><input id="hydration" type="number" value="72"></td>
+      <td><input id="salt-percent" type="number" value="2.5"></td>
+      <td><input id="starter-percent" type="number" value="16"></td>
+    </tr>
+    </tbody>
+  </table>
+  <button id="calculate-recipe">Calculate Recipe</button>
+  <table id="results">
+    <thead>
+    <tr>
+      <th>Date and Time</th>
+      <th>Flour 1 (g)</th>
+      <th>Flour 2 (g)</th>
+<!--      <th>Flour 3 (g)</th>-->
+      <th>Flour Total (g)</th>
+      <th>Water (g)</th>
+      <th>Salt (g)</th>
+      <th>Starter (g)</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+<script type="text/javascript" src="script.js">
+</script>
+</body>
+</html>
