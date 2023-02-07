@@ -1,6 +1,6 @@
 # Sourdough Recipe Calculator
 
-This is a JavaScript function that calculates the recipe for a sourdough dough given the desired final mass, hydration, and the percentages of different flour types and salt.
+This is a JavaScript function that calculates the recipe for a sourdough dough given the desired final mass, hydration, and the percentages of different flour types and salt. The code also includes a user interface that allows the user to input the desired parameters and display the results in an HTML table. The code also includes listeners for the "calculate recipe" button and for the "enter" key on the input fields to trigger the calculation.
 
 The function returns an object with the following properties:
 - dateTime: the date and time when the recipe was calculated
@@ -19,5 +19,6 @@ The function can be called with the following arguments:
 - saltPercent (default 2.5): the percentage of salt in the total flour mass
 - starterPercent (default 16): the percentage of sourdough starter in the final dough mass
 
-The function can be used in a web page that allows the user to enter the input values and display the calculated recipe in a table. The code also includes listeners for the "calculate recipe" button and for the "enter" key on the input fields to trigger the calculation.
+Here's a screenshot of what the user interface looks like:
+![Screenshot of the user interface](./Screenshot.png)
 

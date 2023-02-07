@@ -1,8 +1,6 @@
 const calculateDoughRecipe = (finalMass = 750, hydration = 72, flour1Percent = 80,
                               flour2Percent = 20, /*flour3Percent = 0,*/ saltPercent = 2.5,
                               starterPercent = 16) => {
-  // Calculate the total water mass
-  const waterMass = finalMass * hydration / 100
 
 
   // Calculate the mass of sourdough starter
@@ -10,6 +8,9 @@ const calculateDoughRecipe = (finalMass = 750, hydration = 72, flour1Percent = 8
 
   // Calculate the total flour mass
   const flourMass = (finalMass - starterMass * (saltPercent / 100 + hydration / 100 + 1) / 2) / (saltPercent / 100 + hydration / 100 + 1)
+
+  // Calculate the total water mass
+  const waterMass = flourMass * hydration / 100 + starterMass * (hydration / 100 - 1) / 2
 
   // Calculate the mass of each flour type
   const flour1Mass = flourMass * flour1Percent / 100
