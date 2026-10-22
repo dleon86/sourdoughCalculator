@@ -7,6 +7,7 @@ import bakes from './routes/bakes.js';
 import starters from './routes/starters.js';
 import feedings from './routes/feedings.js';
 import photos from './routes/photos.js';
+import backup from './routes/backup.js';
 
 const PUBLIC_DIR = path.join(import.meta.dirname, '..', 'public');
 
@@ -32,6 +33,7 @@ app.use('/api/bakes', bakes);
 app.use('/api/starters', starters);
 app.use('/api/feedings', feedings);
 app.use('/api', photos);
+app.use('/api', backup);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Local only. On Vercel, files in public/ are served by the CDN instead.
@@ -45,6 +47,7 @@ app.use((err, req, res, next) => {
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ error: 'That upload is too large' });
   }
+  if (err.status >= 400 && err.status < 500) return res.status(err.status).json({ error: err.message });
   // 22P02: invalid text representation, e.g. /api/recipes/abc
   if (err.code === '22P02') return res.status(404).json({ error: 'Not found' });
   console.error(err);

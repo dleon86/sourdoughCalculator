@@ -8,6 +8,7 @@ import { bakeFormView } from './views/bake-form.js';
 import { loginView } from './views/login.js';
 import { timerView } from './views/timer.js';
 import { compareView } from './views/compare.js';
+import { settingsView } from './views/settings.js';
 import { feedingFormView, starterEditView, startersView } from './views/starter.js';
 
 const routes = [
@@ -19,6 +20,7 @@ const routes = [
   [/^\/bakes\/(\d+)$/, 'bakes', (id) => bakeFormView({ bakeId: Number(id) })],
   [/^\/bakes$/, 'bakes', () => bakesView()],
   [/^\/compare$/, 'bakes', (_, q) => compareView(Number(q.get('a')), Number(q.get('b')))],
+  [/^\/settings$/, 'settings', () => settingsView()],
   [/^\/starter$/, 'starter', () => startersView()],
   [/^\/starter\/new$/, 'starter', () => starterEditView(null)],
   [/^\/starter\/(\d+)\/edit$/, 'starter', (id) => starterEditView(Number(id))],
