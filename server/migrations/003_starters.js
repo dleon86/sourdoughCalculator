@@ -1,3 +1,5 @@
+// Migration 003_starters.sql. Kept as a JS module so the cloud bundler includes it.
+export default /* sql */ `
 -- Starters and their feedings. A feeding is "rising" until peaked_at is
 -- set, and the time from fed_at to peaked_at is the activity measure the
 -- tracker charts against temperature.
@@ -29,3 +31,4 @@ CREATE TABLE feedings (
 CREATE INDEX feedings_starter_fed_idx ON feedings (starter_id, fed_at DESC);
 
 ALTER TABLE bakes ADD COLUMN starter_id INTEGER REFERENCES starters(id) ON DELETE SET NULL;
+`;

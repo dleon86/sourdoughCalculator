@@ -1,3 +1,5 @@
+// Migration 001_init.sql. Kept as a JS module so the cloud bundler includes it.
+export default /* sql */ `
 -- A recipe stores only the inputs of a formula. Gram weights are always
 -- derived from these (see public/js/calc.js), so they can never drift.
 CREATE TABLE recipes (
@@ -35,3 +37,4 @@ CREATE TABLE bakes (
 
 CREATE INDEX bakes_baked_on_idx ON bakes (baked_on DESC);
 CREATE INDEX bakes_recipe_id_idx ON bakes (recipe_id);
+`;

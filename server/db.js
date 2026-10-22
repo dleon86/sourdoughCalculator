@@ -1,12 +1,9 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import pg from 'pg';
+import migrations from './migrations/index.js';
 
 // Return DATE columns as 'YYYY-MM-DD' strings instead of JS Dates, which
 // would otherwise shift a day depending on the server's timezone.
 pg.types.setTypeParser(pg.types.builtins.DATE, (value) => value);
-
-const MIGRATIONS_DIR = path.join(import.meta.dirname, 'migrations');
 
 // In the cloud, Neon provides DATABASE_URL. Locally, `pg` reads PGHOST,
 // PGPORT, PGUSER, PGPASSWORD and PGDATABASE from .env.
@@ -30,7 +27,7 @@ async function ensureDatabase() {
   }
 }
 
-// Apply every .sql file in migrations/ that hasn't run yet, in name order.
+// Apply every migration listed in migrations/index.js that hasn't run yet.
 // The advisory lock stops two cold-starting cloud instances from running
 // the same migration at once. It belongs to one database session, so this
 // uses Neon's direct (unpooled) connection rather than the pooler.
@@ -46,11 +43,8 @@ async function migrate() {
     )`);
     const { rows } = await client.query('SELECT name FROM schema_migrations');
     const applied = new Set(rows.map((r) => r.name));
-    const files = (await fs.readdir(MIGRATIONS_DIR)).filter((f) => f.endsWith('.sql')).sort();
-
-    for (const file of files) {
+    for (const [file, sql] of migrations) {
       if (applied.has(file)) continue;
-      const sql = await fs.readFile(path.join(MIGRATIONS_DIR, file), 'utf8');
       try {
         await client.query('BEGIN');
         await client.query(sql);

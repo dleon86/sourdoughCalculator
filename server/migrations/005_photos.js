@@ -1,3 +1,5 @@
+// Migration 005_photos.sql. Kept as a JS module so the cloud bundler includes it.
+export default /* sql */ `
 -- Photos belong to a bake. The file itself lives in storage (Blob in the
 -- cloud, uploads/ locally) under storage_key.
 CREATE TABLE photos (
@@ -11,3 +13,4 @@ CREATE TABLE photos (
 );
 
 CREATE INDEX photos_bake_id_idx ON photos (bake_id, id);
+`;
