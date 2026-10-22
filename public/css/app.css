@@ -475,3 +475,29 @@ h3 { font: 650 1.05rem var(--font-display); margin: 0 0 12px; }
   .bake { grid-template-columns: 48px minmax(0, 1fr); }
   .bake-cover { grid-column: 2; width: 100%; height: 160px; }
 }
+
+/* ---- Compare ---------------------------------------------------------- */
+
+.compare-bar {
+  position: sticky; top: 72px; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 10px 16px; margin-bottom: 16px; border-radius: 12px; background: var(--blue); color: var(--paper); font-weight: 700;
+}
+.compare-bar[hidden] { display: none; }
+.compare-bar .btn { color: var(--paper); border-color: var(--paper); }
+.picking .bake { cursor: copy; }
+.bake.picked { border-color: var(--blue); outline: 3px solid var(--blue); }
+.compare-with { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+.compare-with select { width: auto; max-width: 100%; }
+
+.compare { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 24px; }
+.compare thead th { text-align: left; vertical-align: top; padding: 0 8px 16px; font-weight: 700; }
+.compare thead th a { display: block; margin-bottom: 8px; }
+.compare-photo { display: block; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: var(--enamel); cursor: zoom-in; }
+.compare-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.compare-photo.empty { display: grid; place-items: center; color: var(--ink-soft); font-size: 0.85rem; font-weight: 400; cursor: default; }
+.compare .label-row th { text-align: left; font-size: 0.85rem; color: var(--ink-soft); padding: 12px 8px 2px; border-top: 1px solid var(--rule); }
+.compare td { padding: 2px 8px 10px; vertical-align: top; overflow-wrap: anywhere; }
+.compare tbody.differs { background: var(--crust-wash); }
+.compare tbody.differs .label-row th { color: var(--crust); }
+.delta { display: inline-block; margin-left: 6px; font-size: 0.85rem; font-weight: 700; color: var(--crust); }
+.compare td.notes { white-space: pre-wrap; font-size: 0.95rem; }

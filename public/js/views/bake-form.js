@@ -1,6 +1,6 @@
 import * as api from '../api.js';
 import { calculate, describe, formatGrams, formulaOf } from '../calc.js';
-import { h, showFieldErrors, store, toast, today, fill } from '../ui.js';
+import { formatDay, h, showFieldErrors, store, toast, today, fill } from '../ui.js';
 import { PENDING_BAKE_KEY } from './calculator.js';
 import { photoField } from '../photos.js';
 
@@ -9,11 +9,13 @@ const toMinutes = (hours) => (hours === '' ? null : Math.round(Number(hours) * 6
 const toHours = (minutes) => (minutes == null ? '' : +(minutes / 60).toFixed(2));
 
 export async function bakeFormView({ bakeId = null, recipeId = null }) {
-  const [recipes, existing, starters] = await Promise.all([
+  const [recipes, existing, starters, allBakes] = await Promise.all([
     api.recipes.list(),
     bakeId ? api.bakes.get(bakeId) : null,
     api.starters.list(),
+    bakeId ? api.bakes.list() : [],
   ]);
+  const others = allBakes.filter((b) => b.id !== bakeId && b.status === 'done');
 
   // Where the formula comes from: the bake being edited, a recipe link,
   // or a formula handed over from the calculator.
@@ -172,6 +174,14 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
     h('div', { class: 'page-head' },
       h('h1', {}, existing ? 'Edit bake' : 'Log a bake'),
       h('p', { class: 'muted' }, 'Fill in what you know. Everything except the recipe and date can be left blank.'),
-      existing?.events.length > 0 && h('a', { href: `#/bakes/${existing.id}/timer` }, 'See or fix the bake-day steps')),
+      existing?.events.length > 0 && h('a', { href: `#/bakes/${existing.id}/timer` }, 'See or fix the bake-day steps'),
+      others.length > 0 && h('div', { class: 'compare-with' },
+        h('label', { for: 'b-compare' }, 'Compare with'),
+        h('select', {
+          id: 'b-compare',
+          onchange: (e) => { if (e.target.value) location.hash = `#/compare?a=${e.target.value}&b=${existing.id}`; },
+        },
+        h('option', { value: '' }, 'Pick an earlier bake'),
+        others.map((o) => h('option', { value: o.id }, `${formatDay(o.bakedOn)}, ${o.formula.name || 'Untitled'}`))))),
     form);
 }

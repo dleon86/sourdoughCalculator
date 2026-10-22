@@ -40,7 +40,7 @@ function bakeItem(b) {
   ].filter(Boolean);
 
   return h('li', {},
-    h('a', { class: 'bake', href: `#/bakes/${b.id}` },
+    h('a', { class: 'bake', href: `#/bakes/${b.id}`, dataset: { id: b.id } },
       h('span', { class: 'bake-date', 'aria-hidden': 'true' },
         h('span', { class: 'day' }, day.getDate()),
         h('span', { class: 'weekday' }, weekdayFmt.format(day))),
@@ -70,12 +70,38 @@ export async function bakesView() {
     byMonth.get(key).push(b);
   }
 
-  return h('section', { class: 'page' },
+  // Compare mode: tapping a bake picks it instead of opening it.
+  const picked = [];
+  const compareBar = h('div', { class: 'compare-bar', hidden: true },
+    h('span', { class: 'compare-count' }),
+    h('button', { type: 'button', class: 'btn ghost small', onclick: () => setPicking(false) }, 'Cancel'));
+  function setPicking(on) {
+    picked.length = 0;
+    page.classList.toggle('picking', on);
+    page.querySelectorAll('.bake.picked').forEach((el) => el.classList.remove('picked'));
+    compareBar.hidden = !on;
+    compareBar.querySelector('.compare-count').textContent = 'Tap two bakes to compare them';
+  }
+  function onPick(e) {
+    const link = e.target.closest('.bake');
+    if (!link || !page.classList.contains('picking')) return;
+    e.preventDefault();
+    const id = Number(link.dataset.id);
+    const at = picked.indexOf(id);
+    if (at >= 0) picked.splice(at, 1); else picked.push(id);
+    link.classList.toggle('picked', at < 0);
+    if (picked.length === 2) location.hash = `#/compare?a=${picked[0]}&b=${picked[1]}`;
+    else compareBar.querySelector('.compare-count').textContent = picked.length ? 'Now tap the second bake' : 'Tap two bakes to compare them';
+  }
+
+  const page = h('section', { class: 'page', onclick: onPick },
     h('div', { class: 'page-head split' },
       h('div', {}, h('h1', {}, 'Bakes'), summary(bakes)),
       h('div', { class: 'row-actions' },
         h('a', { class: 'btn', href: '#/recipes' }, 'Start a bake'),
-        h('a', { class: 'btn ghost', href: '#/bakes/new' }, 'Log a past bake'))),
+        h('a', { class: 'btn ghost', href: '#/bakes/new' }, 'Log a past bake'),
+        bakes.length >= 2 && h('button', { type: 'button', class: 'btn ghost', onclick: (e) => { e.stopPropagation(); setPicking(true); } }, 'Compare'))),
+    compareBar,
     active.length > 0 && h('div', { class: 'active-list' }, active.map(activeItem)),
     bakes.length === 0
       ? h('div', { class: 'empty' },
@@ -85,4 +111,5 @@ export async function bakesView() {
         h('h2', {}, monthFmt.format(parseDay(`${key}-01`))),
         h('ol', { class: 'timeline' }, items.map(bakeItem)))),
   );
+  return page;
 }
