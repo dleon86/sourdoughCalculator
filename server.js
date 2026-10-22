@@ -1,4 +1,7 @@
 // Entry point. Vercel imports the default export; locally we also listen.
+// Vercel finds the entry by looking for a root file that imports express,
+// so the import below is for its detector; the app is built in server/app.js.
+import 'express';
 import app from './server/app.js';
 import { ready } from './server/db.js';
 
