@@ -1,0 +1,330 @@
+/* Bread Log. Enamelware kitchen palette: cool enamel white, cast-iron ink,
+   Dutch-oven blue for actions, and crust brown reserved for the numbers
+   you weigh and the ratings you give. */
+
+:root {
+  --enamel: #f2f4f6;
+  --paper: #ffffff;
+  --ink: #22262c;
+  --ink-soft: #5a636e;
+  --rule: #d3d9e0;
+  --blue: #2e4a6e;
+  --blue-strong: #233a58;
+  --blue-wash: #e3eaf3;
+  --crust: #b5702a;
+  --crust-wash: #f6ead9;
+  --danger: #a33a2a;
+  --ok: #3c6e47;
+
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+
+  --r-input: 8px;
+  --r-panel: 16px;
+  --shadow-panel: 0 1px 0 var(--rule), 0 12px 32px -18px rgb(34 38 44 / 0.35);
+  --gutter: clamp(16px, 4vw, 40px);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --enamel: #16191d;
+    --paper: #1f2328;
+    --ink: #e9ecef;
+    --ink-soft: #a2abb5;
+    --rule: #343a42;
+    --blue: #8fb0d9;
+    --blue-strong: #b0c9e8;
+    --blue-wash: #23303f;
+    --crust: #e2a35c;
+    --crust-wash: #3a2c1c;
+    --danger: #e58a7b;
+    --ok: #86c095;
+    --shadow-panel: 0 1px 0 var(--rule), 0 12px 32px -18px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--enamel);
+  color: var(--ink);
+  font: 17px/1.55 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; font-weight: 650; }
+p { margin: 0; }
+a { color: var(--blue); }
+.muted { color: var(--ink-soft); }
+.small { font-size: 0.9rem; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+.skip-link {
+  position: absolute; left: 8px; top: -60px; z-index: 50;
+  background: var(--paper); padding: 8px 12px; border-radius: var(--r-input);
+}
+.skip-link:focus { top: 8px; }
+
+/* ---- Shell ------------------------------------------------------------ */
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px var(--gutter);
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  position: sticky; top: 0; z-index: 10;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font: 700 1.2rem var(--font-display); color: var(--ink); text-decoration: none;
+}
+.tabs { display: flex; gap: 4px; }
+.tabs a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 999px;
+  color: var(--ink-soft); text-decoration: none; font-weight: 700;
+}
+.tabs a:hover { color: var(--ink); background: var(--enamel); }
+.tabs a[aria-current] { color: var(--blue-strong); background: var(--blue-wash); }
+.tabs svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+main { padding: 32px var(--gutter) 96px; outline: none; }
+.page { max-width: 1120px; margin: 0 auto; }
+.page.narrow { max-width: 760px; }
+.page-head { margin-bottom: 28px; display: grid; gap: 6px; justify-items: start; }
+.page-head.split { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+.page-head .muted { max-width: 60ch; }
+
+/* ---- Controls --------------------------------------------------------- */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 18px;
+  border: 1.5px solid var(--blue); border-radius: 10px;
+  background: var(--blue); color: var(--paper);
+  font: 700 1rem var(--font-body); text-decoration: none; cursor: pointer;
+}
+.btn:hover { background: var(--blue-strong); border-color: var(--blue-strong); }
+.btn:disabled { opacity: 0.5; cursor: default; background: var(--blue); }
+.btn.ghost { background: transparent; color: var(--blue); }
+.btn.ghost:hover { background: var(--blue-wash); }
+.btn.small { min-height: 36px; padding: 0 12px; font-size: 0.92rem; }
+.btn.danger { color: var(--danger); border-color: transparent; }
+.btn.danger:hover { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.link-btn {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--blue); font: inherit; font-size: 0.92rem; text-decoration: underline;
+}
+.icon-btn {
+  width: 40px; height: 40px; flex: none;
+  border: 1px solid var(--rule); border-radius: var(--r-input);
+  background: var(--paper); color: var(--ink-soft); font-size: 1.3rem; cursor: pointer;
+}
+.icon-btn:hover:not(:disabled) { color: var(--danger); border-color: currentColor; }
+.icon-btn:disabled { opacity: 0.35; cursor: default; }
+
+fieldset { border: 0; margin: 0 0 28px; padding: 0; min-width: 0; }
+legend {
+  font: 650 1.05rem var(--font-display); padding: 0 0 12px;
+  width: 100%; border-bottom: 1px solid var(--rule); margin-bottom: 16px;
+}
+.field { display: grid; gap: 6px; align-content: start; min-width: 0; margin-bottom: 16px; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0 16px; }
+label, .label { font-weight: 700; font-size: 0.95rem; }
+.hint { font-size: 0.85rem; color: var(--ink-soft); }
+.field-error { font-size: 0.88rem; color: var(--danger); font-weight: 700; }
+
+input[type="text"], input[type="number"], input[type="date"], select, textarea {
+  width: 100%; min-height: 44px; padding: 8px 12px;
+  border: 1.5px solid var(--rule); border-radius: var(--r-input);
+  background: var(--paper); color: var(--ink);
+  font: inherit;
+}
+textarea { resize: vertical; line-height: 1.5; }
+input:hover, select:hover, textarea:hover { border-color: var(--ink-soft); }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-wash); }
+[aria-invalid="true"] { border-color: var(--danger) !important; }
+input[type="number"] { font-variant-numeric: tabular-nums; }
+
+.input-unit { position: relative; }
+.input-unit input { padding-right: 44px; }
+.input-unit .unit {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-soft); pointer-events: none; font-size: 0.95rem;
+}
+
+.check { display: flex; align-items: center; gap: 10px; font-weight: 400; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--blue); }
+
+/* ---- Calculator ------------------------------------------------------- */
+
+.calc-grid {
+  display: grid; gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 440px);
+  align-items: start;
+}
+.flour-list { display: grid; gap: 10px; margin-bottom: 12px; }
+.flour-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px auto; gap: 8px; }
+
+/* The scale readout: the one loud thing in the app. */
+.readout {
+  position: sticky; top: 88px;
+  background: var(--paper); border-radius: var(--r-panel);
+  box-shadow: var(--shadow-panel);
+  padding: 24px;
+}
+.readout-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.scale { list-style: none; margin: 0; padding: 0; }
+.scale li + li { border-top: 1px dashed var(--rule); }
+.scale button {
+  width: 100%; display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px;
+  padding: 14px 4px; background: none; border: 0; color: inherit; text-align: left; cursor: pointer;
+  font: inherit; border-radius: var(--r-input);
+}
+.scale button:hover { background: var(--enamel); }
+.tick {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--rule); display: grid; place-items: center;
+}
+.scale .done .tick { background: var(--ok); border-color: var(--ok); }
+.scale .done .tick::after { content: ''; width: 6px; height: 11px; border: solid var(--paper); border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+.ingredient { font-size: 1.05rem; font-weight: 700; overflow-wrap: anywhere; }
+.grams {
+  font: 700 clamp(2rem, 4.2vw, 2.6rem)/1 var(--font-display);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  color: var(--crust); text-align: right; white-space: nowrap;
+}
+.grams small { font-size: 0.45em; font-weight: 600; color: var(--ink-soft); letter-spacing: 0; }
+.scale .done .ingredient, .scale .done .grams { opacity: 0.4; }
+.scale .done .ingredient { text-decoration: line-through; }
+
+.readout-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 8px; padding-top: 14px; border-top: 2px solid var(--ink);
+  font-weight: 700;
+}
+.readout-total .grams { color: var(--ink); font-size: 1.6rem; }
+.readout-note { margin-top: 14px; font-size: 0.88rem; color: var(--ink-soft); }
+.warnings {
+  margin: 14px 0 0; padding: 12px 14px 12px 32px; border-radius: var(--r-input);
+  background: var(--crust-wash); font-size: 0.92rem;
+}
+.readout-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.readout-actions .btn:first-child { flex: 1 1 100%; }
+
+/* ---- Recipes ---------------------------------------------------------- */
+
+.recipe-list { list-style: none; margin: 0; padding: 0; background: var(--paper); border-radius: var(--r-panel); box-shadow: var(--shadow-panel); }
+.recipe-list li {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 24px; align-items: center;
+  padding: 18px 24px;
+}
+.recipe-list li + li { border-top: 1px solid var(--rule); }
+.recipe-main { display: grid; gap: 2px; text-decoration: none; color: inherit; grid-row: span 2; }
+.recipe-main:hover .recipe-name { color: var(--blue); text-decoration: underline; }
+.recipe-name { font: 650 1.2rem var(--font-display); }
+.recipe-meta, .recipe-history { color: var(--ink-soft); font-size: 0.92rem; }
+.recipe-history { text-align: right; }
+.row-actions { display: flex; gap: 6px; justify-content: end; }
+
+.empty {
+  display: grid; gap: 16px; justify-items: start;
+  padding: 32px; border: 2px dashed var(--rule); border-radius: var(--r-panel);
+}
+.empty p { max-width: 55ch; }
+
+/* ---- Bakes ------------------------------------------------------------ */
+
+.month { margin-bottom: 36px; }
+.month h2 { margin-bottom: 12px; color: var(--ink-soft); font-weight: 600; }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.bake {
+  display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 20px;
+  padding: 18px 20px; background: var(--paper); border-radius: 12px;
+  border: 1px solid var(--rule); color: inherit; text-decoration: none;
+}
+.bake:hover { border-color: var(--blue); }
+.bake-date { display: grid; justify-items: center; align-content: start; border-right: 1px solid var(--rule); padding-right: 20px; }
+.bake-date .day { font: 700 2rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.bake-date .weekday { font-size: 0.85rem; color: var(--ink-soft); }
+.bake-body { display: grid; gap: 4px; }
+.bake-title { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font: 650 1.15rem var(--font-display); }
+.bake-formula { color: var(--ink-soft); font-size: 0.92rem; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.fact { font-size: 0.85rem; padding: 2px 10px; border-radius: 999px; background: var(--enamel); }
+.bake-notes {
+  margin-top: 6px; color: var(--ink-soft); font-size: 0.95rem;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.stars { color: var(--crust); letter-spacing: 2px; font-size: 1rem; white-space: nowrap; }
+.stars .dim { color: var(--rule); }
+.stars.empty { color: var(--ink-soft); font: 400 0.85rem var(--font-body); letter-spacing: 0; }
+
+.formula-box { padding: 14px 16px; border-radius: var(--r-input); background: var(--blue-wash); display: grid; gap: 4px; }
+.formula-title { font-weight: 700; }
+
+.rating { display: flex; gap: 4px; }
+.rating label { cursor: pointer; font-size: 2rem; line-height: 1; color: var(--rule); }
+.rating input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.rating label:has(~ label:hover), .rating label:hover,
+.rating:not(:hover) label:has(~ label input:checked), .rating:not(:hover) label:has(input:checked) { color: var(--crust); }
+.rating label:has(input:focus-visible) { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+
+.form-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.push-right { margin-left: auto; }
+
+/* ---- Toast ------------------------------------------------------------ */
+
+#toast {
+  position: fixed; left: 50%; bottom: 24px; z-index: 30;
+  transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--enamel);
+  padding: 12px 18px; border-radius: 10px; font-weight: 700; max-width: calc(100vw - 32px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+#toast.error { background: var(--danger); color: #fff; }
+
+/* ---- Small screens ---------------------------------------------------- */
+
+@media (max-width: 860px) {
+  .calc-grid { grid-template-columns: 1fr; }
+  .readout { position: static; order: -1; }
+  .recipe-list li { grid-template-columns: 1fr; padding: 16px; }
+  .recipe-main { grid-row: auto; }
+  .recipe-history { text-align: left; }
+  .row-actions { justify-content: start; }
+}
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  main { padding: 20px 16px 104px; }
+  .topbar { padding: 10px 16px; }
+  /* Tabs move to a bottom bar where thumbs can reach them. */
+  .tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: var(--paper); border-top: 1px solid var(--rule);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+  }
+  .tabs a { flex-direction: column; gap: 2px; padding: 6px 16px; border-radius: 12px; font-size: 0.78rem; }
+  #toast { bottom: 88px; }
+  .readout { padding: 16px; }
+  .bake { grid-template-columns: 48px minmax(0, 1fr); gap: 14px; padding: 14px; }
+  .bake-date { padding-right: 14px; }
+  .flour-row { grid-template-columns: minmax(0, 1fr) 92px auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #toast { transition: none; }
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sourdough Recipe Calculator</title>
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+    <div id="calculator-container">
+        <h1>Sourdough Bread Recipe Calculator</h1>
+        <div id="flour-types-container">
+            <div class="flour-type">
+                <label>Flour 1 (%): </label>
+                <input type="number" class="flour-percent" value="80">
+            </div>
+            <div class="flour-type">
+                <label>Flour 2 (%): </label>
+                <input type="number" class="flour-percent" value="20">
+            </div>
+        </div>
+        <button id="add-flour">Add Flour Type</button>
+        <button id="calculate-recipe">Calculate Recipe</button>
+        <button id="clear-results">Clear Results</button>
+        <button id="export-csv">Export to CSV</button>
+        <table id="results-table">
+            <thead>
+                <tr>
+                    <th>Date/Time</th>
+                    <th>Flour Types</th>
+                    <th>Flour Masses</th>
+                    <th>Total Flour</th>
+                    <th>Water</th>
+                    <th>Salt</th>
+                    <th>Starter</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div id="preview-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <pre id="preview-content"></pre>
+        </div>
+    </div>
+    <script src="script1.js"></script>
+</body>
+</html>

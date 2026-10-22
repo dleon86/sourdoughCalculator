@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bread Log</title>
+  <meta name="theme-color" content="#2E4A6E">
+  <link rel="icon" href="img/bread.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <img src="img/bread.ico" alt="" width="28" height="28">
+      <span>Bread Log</span>
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#/" data-tab="calculator">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20V9h12v11M9 9V5h6v4"/></svg>
+        <span>Calculator</span>
+      </a>
+      <a href="#/recipes" data-tab="recipes">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h10l3 3v15H6zM9 9h7M9 13h7M9 17h4"/></svg>
+        <span>Recipes</span>
+      </a>
+      <a href="#/bakes" data-tab="bakes">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15c0-4 4-7 9-7s9 3 9 7c0 2-2 3-4 3H7c-2 0-4-1-4-3zM8 11l1 2M12 10v2M16 11l-1 2"/></svg>
+        <span>Bakes</span>
+      </a>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
