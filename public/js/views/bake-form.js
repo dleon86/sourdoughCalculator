@@ -8,9 +8,10 @@ const toMinutes = (hours) => (hours === '' ? null : Math.round(Number(hours) * 6
 const toHours = (minutes) => (minutes == null ? '' : +(minutes / 60).toFixed(2));
 
 export async function bakeFormView({ bakeId = null, recipeId = null }) {
-  const [recipes, existing] = await Promise.all([
+  const [recipes, existing, starters] = await Promise.all([
     api.recipes.list(),
     bakeId ? api.bakes.get(bakeId) : null,
+    api.starters.list(),
   ]);
 
   // Where the formula comes from: the bake being edited, a recipe link,
@@ -80,7 +81,14 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
       h('legend', {}, 'What you baked'),
       h('div', { class: 'field-row' },
         field('Recipe', recipeSelect),
-        field('Date', h('input', { id: 'b-bakedOn', name: 'bakedOn', type: 'date', value: existing?.bakedOn ?? today(), max: today() }))),
+        field('Date', h('input', { id: 'b-bakedOn', name: 'bakedOn', type: 'date', value: existing?.bakedOn ?? today(), max: today() })),
+        starters.length > 0 && field('Starter', h('select', { id: 'b-starter', name: 'starterId' },
+          h('option', { value: '' }, 'Not recorded'),
+          starters.map((st) => h('option', {
+            value: st.id,
+            // Default a new bake to the only active starter.
+            selected: existing ? existing.starterId === st.id : starters.filter((x) => !x.archived).length === 1 && !st.archived,
+          }, st.name))))),
       formulaBox),
 
     h('fieldset', {},
@@ -118,6 +126,7 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
     const data = new FormData(form);
     const body = {
       recipeId: state.recipeId,
+      starterId: data.get('starterId') ? Number(data.get('starterId')) : null,
       formula: state.formula,
       bakedOn: data.get('bakedOn'),
       bulkMinutes: toMinutes(data.get('bulkMinutes')),

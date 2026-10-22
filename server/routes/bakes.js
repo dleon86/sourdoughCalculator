@@ -8,6 +8,7 @@ function toApi(row) {
   return {
     id: row.id,
     recipeId: row.recipe_id,
+    starterId: row.starter_id,
     formula: row.formula,
     bakedOn: row.baked_on,
     bulkMinutes: row.bulk_minutes,
@@ -32,6 +33,7 @@ function parseBake(body) {
   const tempUnit = body?.tempUnit === 'C' ? 'C' : 'F';
   const bake = {
     recipeId: v.number('recipeId', { integer: true, min: 1 }),
+    starterId: v.number('starterId', { integer: true, min: 1 }),
     formula,
     bakedOn: v.date('bakedOn'),
     bulkMinutes: v.number('bulkMinutes', { integer: true, min: 0, max: 7 * 24 * 60 }),
@@ -49,7 +51,7 @@ function parseBake(body) {
 
 const params = (b) => [
   b.recipeId, JSON.stringify(b.formula), b.bakedOn, b.bulkMinutes, b.proofMinutes,
-  b.coldProof, b.roomTemp, b.ovenTemp, b.tempUnit, b.bakeMinutes, b.rating, b.notes,
+  b.coldProof, b.roomTemp, b.ovenTemp, b.tempUnit, b.bakeMinutes, b.rating, b.notes, b.starterId,
 ];
 
 router.get('/', async (req, res) => {
@@ -70,8 +72,8 @@ router.post('/', async (req, res) => {
   if (!v.ok) return badRequest(res, v.errors);
   const { rows } = await pool.query(
     `INSERT INTO bakes (recipe_id, formula, baked_on, bulk_minutes, proof_minutes, cold_proof,
-                        room_temp, oven_temp, temp_unit, bake_minutes, rating, notes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+                        room_temp, oven_temp, temp_unit, bake_minutes, rating, notes, starter_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
     params(bake),
   );
   res.status(201).json(toApi(rows[0]));
@@ -84,8 +86,8 @@ router.put('/:id', async (req, res) => {
     `UPDATE bakes
         SET recipe_id = $1, formula = $2, baked_on = $3, bulk_minutes = $4, proof_minutes = $5,
             cold_proof = $6, room_temp = $7, oven_temp = $8, temp_unit = $9, bake_minutes = $10,
-            rating = $11, notes = $12
-      WHERE id = $13 RETURNING *`,
+            rating = $11, notes = $12, starter_id = $13
+      WHERE id = $14 RETURNING *`,
     [...params(bake), req.params.id],
   );
   if (!rows[0]) return res.status(404).json({ error: 'Bake not found' });

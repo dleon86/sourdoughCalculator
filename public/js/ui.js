@@ -100,3 +100,44 @@ export const store = {
     try { localStorage.removeItem(key); } catch { /* ignore */ }
   },
 };
+
+// ---- Time helpers for live timers and date-time inputs ------------------
+
+export const minutesBetween = (from, to = Date.now()) =>
+  Math.max(0, Math.round((new Date(to) - new Date(from)) / 60000));
+
+// "3 h 20 min" style elapsed time between two moments.
+export const formatElapsed = (from, to) => formatDuration(minutesBetween(from, to));
+
+const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+const dayTimeFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+export const formatTime = (iso) => timeFmt.format(new Date(iso));
+export const formatDayTime = (iso) => dayTimeFmt.format(new Date(iso));
+
+// <input type="datetime-local"> works in local time without a zone.
+export function toLocalInput(iso) {
+  const d = iso ? new Date(iso) : new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+export const fromLocalInput = (value) => (value ? new Date(value).toISOString() : null);
+
+// Calls fn every `ms` while `node` is on the page, then stops by itself.
+export function every(ms, node, fn) {
+  let mounted = false;
+  const id = setInterval(() => {
+    if (node.isConnected) { mounted = true; fn(); } else if (mounted) clearInterval(id);
+  }, ms);
+}
+
+// ---- Temperature ----------------------------------------------------------
+
+const UNIT_KEY = 'bread.tempUnit';
+export const tempUnit = {
+  get: () => store.get(UNIT_KEY, 'F'),
+  set: (u) => store.set(UNIT_KEY, u),
+};
+export function convertTemp(value, from, to) {
+  if (value == null || from === to) return value;
+  return to === 'C' ? (value - 32) * 5 / 9 : value * 9 / 5 + 32;
+}

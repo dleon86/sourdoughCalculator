@@ -47,6 +47,19 @@ export class Validator {
     return value;
   }
 
+  // An ISO 8601 date-time, e.g. from Date.prototype.toISOString().
+  timestamp(field, { required = false } = {}) {
+    const value = this.body[field];
+    if (value == null || value === '') return required ? this.fail(field, 'Required') : null;
+    const ms = typeof value === 'string' ? Date.parse(value) : NaN;
+    if (Number.isNaN(ms)) return this.fail(field, 'Not a valid date and time');
+    return new Date(ms).toISOString();
+  }
+
+  bool(field) {
+    return Boolean(this.body[field]);
+  }
+
   flours(field) {
     const value = this.body[field];
     if (!Array.isArray(value) || value.length === 0) return this.fail(field, 'Add at least one flour');

@@ -6,6 +6,7 @@ import { recipesView } from './views/recipes.js';
 import { bakesView } from './views/bakes.js';
 import { bakeFormView } from './views/bake-form.js';
 import { loginView } from './views/login.js';
+import { feedingFormView, starterEditView, startersView } from './views/starter.js';
 
 const routes = [
   [/^\/$/, 'calculator', () => calculatorView()],
@@ -14,6 +15,11 @@ const routes = [
   [/^\/bakes\/new$/, 'bakes', (_, q) => bakeFormView({ recipeId: Number(q.get('recipe')) || null })],
   [/^\/bakes\/(\d+)$/, 'bakes', (id) => bakeFormView({ bakeId: Number(id) })],
   [/^\/bakes$/, 'bakes', () => bakesView()],
+  [/^\/starter$/, 'starter', () => startersView()],
+  [/^\/starter\/new$/, 'starter', () => starterEditView(null)],
+  [/^\/starter\/(\d+)\/edit$/, 'starter', (id) => starterEditView(Number(id))],
+  [/^\/starter\/(\d+)\/feed$/, 'starter', (id) => feedingFormView({ starterId: Number(id) })],
+  [/^\/feedings\/(\d+)$/, 'starter', (id) => feedingFormView({ feedingId: Number(id) })],
 ];
 
 const main = document.getElementById('main');
