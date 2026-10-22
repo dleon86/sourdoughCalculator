@@ -158,6 +158,6 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
 }
 
 function snapshot(recipe) {
-  const { name, notes, doughMass, hydration, saltPct, starterPct, starterHydration, flours } = recipe;
-  return { name, notes, doughMass, hydration, saltPct, starterPct, starterHydration, flours };
+  const { name, notes, basis, doughMass, flourMass, hydration, saltPct, starterPct, starterHydration, flours } = recipe;
+  return { name, notes, basis, doughMass, flourMass, hydration, saltPct, starterPct, starterHydration, flours };
 }

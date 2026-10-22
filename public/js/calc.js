@@ -6,11 +6,17 @@
 //   saltPct    salt ÷ total flour
 //   starterPct starter ÷ flour you add (the number you'd read in most recipes)
 //   flours[].pct  share of the flour you add; normalised, so 80/20 and 4/1 both work
+//
+// basis 'dough' starts from a target dough weight (doughMass); basis
+// 'flour' starts from the flour you have on hand (flourMass, not counting
+// the flour inside the starter).
 
 export const DEFAULT_FORMULA = Object.freeze({
   name: '',
   notes: '',
+  basis: 'dough',
   doughMass: 900,
+  flourMass: 500,
   hydration: 75,
   saltPct: 2,
   starterPct: 20,
@@ -27,13 +33,20 @@ export function calculate(formula) {
   const k = formula.starterPct / 100;
   const r = formula.starterHydration / 100;
 
-  // Every gram of dough is flour × (1 + hydration + salt), so total flour
-  // falls straight out of the target mass.
-  const totalFlour = formula.doughMass / (1 + h + s);
-
-  // Starter contributes 1/(1+r) of its weight as flour. Solve
-  //   totalFlour = addedFlour + k·addedFlour/(1+r)
-  const addedFlour = totalFlour / (1 + k / (1 + r));
+  // Starter contributes 1/(1+r) of its weight as flour, so
+  //   totalFlour = addedFlour × (1 + k/(1+r))
+  const starterShare = 1 + k / (1 + r);
+  let totalFlour;
+  let addedFlour;
+  if (formula.basis === 'flour') {
+    addedFlour = formula.flourMass;
+    totalFlour = addedFlour * starterShare;
+  } else {
+    // Every gram of dough is flour × (1 + hydration + salt), so total
+    // flour falls straight out of the target mass.
+    totalFlour = formula.doughMass / (1 + h + s);
+    addedFlour = totalFlour / starterShare;
+  }
   const starter = k * addedFlour;
   const starterFlour = starter / (1 + r);
   const starterWater = starter - starterFlour;
@@ -80,7 +93,12 @@ export function flourWarnings(flours) {
 
 // Short human summary of a formula, e.g. "900 g, 75% hydration".
 export function describe(formula) {
-  return `${Math.round(formula.doughMass)} g, ${formatNumber(formula.hydration)}% hydration`;
+  return `${Math.round(doughWeight(formula))} g, ${formatNumber(formula.hydration)}% hydration`;
+}
+
+// Total dough weight whichever way the formula was set up.
+export function doughWeight(formula) {
+  return formula.basis === 'flour' ? calculate(formula).total : formula.doughMass;
 }
 
 export function formatNumber(n, digits = 1) {

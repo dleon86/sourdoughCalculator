@@ -41,3 +41,18 @@ test('warns when the starter has more water than the dough allows', () => {
   assert.ok(r.water < 0);
   assert.ok(r.warnings.some((w) => w.includes('starter')));
 });
+
+test('flour basis uses the flour on hand and gives the same dough as the equivalent weight', () => {
+  const byDough = calculate(DEFAULT_FORMULA);
+  const byFlour = calculate({ ...DEFAULT_FORMULA, basis: 'flour', flourMass: byDough.addedFlour });
+  close(byFlour.addedFlour, byDough.addedFlour, 'added flour');
+  close(byFlour.water, byDough.water, 'water');
+  close(byFlour.total, DEFAULT_FORMULA.doughMass, 'total');
+});
+
+test('flour basis: 500 g flour, 20% starter at 100% gives 100 g starter', () => {
+  const r = calculate({ ...DEFAULT_FORMULA, basis: 'flour', flourMass: 500 });
+  close(r.starter, 100, 'starter');
+  close(r.totalFlour, 550, 'total flour');
+  close(r.water + r.starterWater, 550 * 0.75, 'total water');
+});

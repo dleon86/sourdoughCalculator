@@ -6,7 +6,7 @@ const DRAFT_KEY = 'bread.draft';
 export const PENDING_BAKE_KEY = 'bread.pendingBakeFormula';
 
 const clone = (f) => JSON.parse(JSON.stringify(f));
-const FORMULA_KEYS = ['name', 'notes', 'doughMass', 'hydration', 'saltPct', 'starterPct', 'starterHydration', 'flours'];
+const FORMULA_KEYS = ['name', 'notes', 'basis', 'doughMass', 'flourMass', 'hydration', 'saltPct', 'starterPct', 'starterHydration', 'flours'];
 const pickFormula = (src) => Object.fromEntries(FORMULA_KEYS.map((k) => [k, clone(src[k])]));
 
 export async function calculatorView(recipeId = null) {
@@ -54,6 +54,30 @@ export async function calculatorView(recipeId = null) {
   }
   drawFlours();
 
+  // "Start from" switch: a target dough weight, or the flour you have.
+  // Switching carries the current amount across so the loaf doesn't jump.
+  const amountSlot = h('div', { class: 'amount-slot' });
+  function drawAmount() {
+    amountSlot.replaceChildren(formula.basis === 'flour'
+      ? numberField({ label: 'Flour you have', name: 'flourMass', value: formula.flourMass, unit: 'g', step: 10, onInput: set('flourMass'), hint: 'Not counting the starter' })
+      : numberField({ label: 'Dough weight', name: 'doughMass', value: formula.doughMass, unit: 'g', step: 10, onInput: set('doughMass'), hint: 'Everything in the bowl' }));
+  }
+  function setBasis(basis) {
+    if (basis === formula.basis) return;
+    const r = calculate(formula);
+    if (basis === 'flour') formula.flourMass = Math.round(r.addedFlour);
+    else formula.doughMass = Math.round(r.total);
+    formula.basis = basis;
+    basisSwitch.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.value === basis)));
+    drawAmount();
+    changed();
+  }
+  const basisSwitch = h('div', { class: 'segmented', role: 'group', 'aria-label': 'Start from' },
+    [['dough', 'Dough weight'], ['flour', 'Flour I have']].map(([value, label]) => h('button', {
+      type: 'button', value, 'aria-pressed': String(formula.basis === value), onclick: () => setBasis(value),
+    }, label)));
+  drawAmount();
+
   const form = h('form', { class: 'formula-form', onsubmit: (e) => { e.preventDefault(); save(false); } },
     h('div', { class: 'field' },
       h('label', { for: 'f-name' }, 'Recipe name'),
@@ -61,8 +85,9 @@ export async function calculatorView(recipeId = null) {
 
     h('fieldset', {},
       h('legend', {}, 'Dough'),
+      h('div', { class: 'field' }, h('span', { class: 'label' }, 'Start from'), basisSwitch),
       h('div', { class: 'field-row' },
-        numberField({ label: 'Dough weight', name: 'doughMass', value: formula.doughMass, unit: 'g', step: 10, onInput: set('doughMass'), hint: 'Everything in the bowl' }),
+        amountSlot,
         numberField({ label: 'Hydration', name: 'hydration', value: formula.hydration, unit: '%', onInput: set('hydration') }),
         numberField({ label: 'Salt', name: 'saltPct', value: formula.saltPct, unit: '%', step: 0.1, onInput: set('saltPct') }),
       )),
@@ -143,7 +168,8 @@ export async function calculatorView(recipeId = null) {
       return;
     }
     try {
-      const body = asNew && formula.name === saved?.name ? { ...formula, name: `${formula.name} (copy)` } : formula;
+      const body = { ...formula, doughMass: formula.basis === 'flour' ? Math.round(calculate(formula).total) : formula.doughMass };
+      if (asNew && formula.name === saved?.name) body.name = `${formula.name} (copy)`;
       const result = recipeId && !asNew
         ? await api.recipes.update(recipeId, body)
         : await api.recipes.create(body);
