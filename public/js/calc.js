@@ -27,6 +27,11 @@ export const DEFAULT_FORMULA = Object.freeze({
   ],
 });
 
+// The fields that make up a formula. Recipes carry extra fields (id, bake
+// counts...) and bakes store a copy of just these.
+export const FORMULA_KEYS = ['name', 'notes', 'basis', 'doughMass', 'flourMass', 'hydration', 'saltPct', 'starterPct', 'starterHydration', 'flours'];
+export const formulaOf = (src) => structuredClone(Object.fromEntries(FORMULA_KEYS.map((k) => [k, src[k] ?? null])));
+
 export function calculate(formula) {
   const h = formula.hydration / 100;
   const s = formula.saltPct / 100;

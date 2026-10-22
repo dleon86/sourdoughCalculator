@@ -1,6 +1,7 @@
 import * as api from '../api.js';
 import { describe } from '../calc.js';
-import { formatDuration, h, parseDay, stars } from '../ui.js';
+import { formatDuration, formatElapsed, h, parseDay, stars } from '../ui.js';
+import { currentStage } from '../timeline.js';
 
 const monthFmt = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
 const weekdayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
@@ -14,6 +15,15 @@ function summary(bakes) {
   let text = `${bakes.length} ${bakes.length === 1 ? 'bake' : 'bakes'} logged since ${since}`;
   if (avg) text += `, averaging ${avg.toFixed(1)} out of 5`;
   return h('p', { class: 'muted' }, `${text}.`);
+}
+
+function activeItem(b) {
+  const stage = currentStage(b.events);
+  return h('a', { class: 'active-bake', href: `#/bakes/${b.id}/timer` },
+    h('span', { class: 'pill' }, 'In progress'),
+    h('span', { class: 'bake-title' }, b.formula.name || 'Untitled formula'),
+    h('span', { class: 'muted' }, stage ? `${stage.label}, ${formatElapsed(stage.since)}` : 'Not started yet'),
+    h('span', { class: 'btn small' }, 'Open timer'));
 }
 
 function bakeItem(b) {
@@ -47,7 +57,9 @@ function bakeItem(b) {
 }
 
 export async function bakesView() {
-  const bakes = await api.bakes.list();
+  const all = await api.bakes.list();
+  const active = all.filter((b) => b.status === 'active');
+  const bakes = all.filter((b) => b.status !== 'active');
 
   const byMonth = new Map();
   for (const b of bakes) {
@@ -59,7 +71,10 @@ export async function bakesView() {
   return h('section', { class: 'page' },
     h('div', { class: 'page-head split' },
       h('div', {}, h('h1', {}, 'Bakes'), summary(bakes)),
-      h('a', { class: 'btn', href: '#/bakes/new' }, 'Log a bake')),
+      h('div', { class: 'row-actions' },
+        h('a', { class: 'btn', href: '#/recipes' }, 'Start a bake'),
+        h('a', { class: 'btn ghost', href: '#/bakes/new' }, 'Log a past bake'))),
+    active.length > 0 && h('div', { class: 'active-list' }, active.map(activeItem)),
     bakes.length === 0
       ? h('div', { class: 'empty' },
         h('p', {}, 'Nothing logged yet. After your next bake, note the timings, temperatures and how it came out, so you can tell what changed from one loaf to the next.'),

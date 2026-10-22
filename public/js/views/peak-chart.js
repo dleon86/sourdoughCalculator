@@ -1,7 +1,7 @@
 // Scatter of hours-to-peak against temperature, one colour for feedings in
 // the warmer and one for the counter. Plain SVG, no chart library.
 import { formatNumber } from '../calc.js';
-import { convertTemp, formatDayTime, formatElapsed, h, tempUnit } from '../ui.js';
+import { convertTemp, formatDayTime, formatElapsed, h, tempUnit, fill } from '../ui.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const s = (tag, attrs = {}, ...children) => {
@@ -70,7 +70,7 @@ export function peakChart(feedings) {
 
     const show = (p, cx, cy) => {
       tip.hidden = false;
-      tip.replaceChildren(
+      fill(tip, 
         h('strong', {}, `${formatElapsed(p.f.fedAt, p.f.peakedAt)} to peak`),
         h('span', {}, `${formatNumber(p.x, 0)}°${unit}, ${p.f.inWarmer ? 'in the warmer' : 'on the counter'}`),
         p.f.risePct != null && h('span', {}, `Grew ${formatNumber(p.f.risePct, 0)}%`),

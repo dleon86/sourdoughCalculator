@@ -1,6 +1,6 @@
 import * as api from '../api.js';
-import { calculate, describe, formatGrams } from '../calc.js';
-import { h, showFieldErrors, store, toast, today } from '../ui.js';
+import { calculate, describe, formatGrams, formulaOf } from '../calc.js';
+import { h, showFieldErrors, store, toast, today, fill } from '../ui.js';
 import { PENDING_BAKE_KEY } from './calculator.js';
 
 const UNIT_KEY = 'bread.tempUnit';
@@ -22,17 +22,17 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
 
   const state = {
     recipeId: existing?.recipeId ?? fromRecipe?.id ?? null,
-    formula: existing?.formula ?? pending?.formula ?? (fromRecipe ? snapshot(fromRecipe) : null),
+    formula: existing?.formula ?? pending?.formula ?? (fromRecipe ? formulaOf(fromRecipe) : null),
   };
 
   const formulaBox = h('div', { class: 'formula-box' });
   function drawFormula() {
     if (!state.formula) {
-      formulaBox.replaceChildren(h('p', { class: 'muted' }, 'Pick the recipe you baked. The formula is saved with this bake, so later edits to the recipe won’t change it.'));
+      fill(formulaBox, h('p', { class: 'muted' }, 'Pick the recipe you baked. The formula is saved with this bake, so later edits to the recipe won’t change it.'));
       return;
     }
     const r = calculate(state.formula);
-    formulaBox.replaceChildren(
+    fill(formulaBox, 
       h('p', { class: 'formula-title' }, state.formula.name || 'Unsaved formula', ', ', describe(state.formula)),
       h('p', { class: 'muted small' }, [
         ...r.flours.map((f) => `${f.name} ${formatGrams(f.grams)} g`),
@@ -57,7 +57,7 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
     onchange: (e) => {
       const r = recipes.find((x) => x.id === Number(e.target.value));
       state.recipeId = r?.id ?? null;
-      state.formula = r ? snapshot(r) : null;
+      state.formula = r ? formulaOf(r) : null;
       drawFormula();
     },
   },
@@ -126,6 +126,8 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
     const data = new FormData(form);
     const body = {
       recipeId: state.recipeId,
+      status: existing?.status ?? 'done',
+      events: existing?.events ?? [],
       starterId: data.get('starterId') ? Number(data.get('starterId')) : null,
       formula: state.formula,
       bakedOn: data.get('bakedOn'),
@@ -162,11 +164,7 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
   return h('section', { class: 'page narrow' },
     h('div', { class: 'page-head' },
       h('h1', {}, existing ? 'Edit bake' : 'Log a bake'),
-      h('p', { class: 'muted' }, 'Fill in what you know. Everything except the recipe and date can be left blank.')),
+      h('p', { class: 'muted' }, 'Fill in what you know. Everything except the recipe and date can be left blank.'),
+      existing?.events.length > 0 && h('a', { href: `#/bakes/${existing.id}/timer` }, 'See or fix the bake-day steps')),
     form);
-}
-
-function snapshot(recipe) {
-  const { name, notes, basis, doughMass, flourMass, hydration, saltPct, starterPct, starterHydration, flours } = recipe;
-  return { name, notes, basis, doughMass, flourMass, hydration, saltPct, starterPct, starterHydration, flours };
 }

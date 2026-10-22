@@ -1,13 +1,12 @@
 import * as api from '../api.js';
-import { calculate, DEFAULT_FORMULA, formatGrams, formatNumber } from '../calc.js';
-import { h, numberField, showFieldErrors, store, toast } from '../ui.js';
+import { calculate, DEFAULT_FORMULA, formatGrams, formatNumber, formulaOf } from '../calc.js';
+import { h, numberField, showFieldErrors, store, toast, fill } from '../ui.js';
+import { startBake } from './timer.js';
 
 const DRAFT_KEY = 'bread.draft';
 export const PENDING_BAKE_KEY = 'bread.pendingBakeFormula';
 
-const clone = (f) => JSON.parse(JSON.stringify(f));
-const FORMULA_KEYS = ['name', 'notes', 'basis', 'doughMass', 'flourMass', 'hydration', 'saltPct', 'starterPct', 'starterHydration', 'flours'];
-const pickFormula = (src) => Object.fromEntries(FORMULA_KEYS.map((k) => [k, clone(src[k])]));
+const pickFormula = formulaOf;
 
 export async function calculatorView(recipeId = null) {
   const saved = recipeId ? await api.recipes.get(recipeId) : null;
@@ -33,7 +32,7 @@ export async function calculatorView(recipeId = null) {
   const flourList = h('div', { class: 'flour-list' });
 
   function drawFlours() {
-    flourList.replaceChildren(...formula.flours.map((flour, i) => h('div', { class: 'flour-row' },
+    fill(flourList, ...formula.flours.map((flour, i) => h('div', { class: 'flour-row' },
       h('input', {
         type: 'text', value: flour.name, 'aria-label': `Flour ${i + 1} name`, placeholder: 'Flour name',
         oninput: (e) => { flour.name = e.target.value; changed(); },
@@ -58,7 +57,7 @@ export async function calculatorView(recipeId = null) {
   // Switching carries the current amount across so the loaf doesn't jump.
   const amountSlot = h('div', { class: 'amount-slot' });
   function drawAmount() {
-    amountSlot.replaceChildren(formula.basis === 'flour'
+    fill(amountSlot, formula.basis === 'flour'
       ? numberField({ label: 'Flour you have', name: 'flourMass', value: formula.flourMass, unit: 'g', step: 10, onInput: set('flourMass'), hint: 'Not counting the starter' })
       : numberField({ label: 'Dough weight', name: 'doughMass', value: formula.doughMass, unit: 'g', step: 10, onInput: set('doughMass'), hint: 'Everything in the bowl' }));
   }
@@ -130,7 +129,7 @@ export async function calculatorView(recipeId = null) {
     ];
     const done = items.filter((i) => weighed.has(i.key)).length;
 
-    readout.replaceChildren(...[
+    fill(readout, ...[
       h('div', { class: 'readout-head' },
         h('h2', {}, 'Weigh out'),
         done > 0 && h('button', { type: 'button', class: 'link-btn', onclick: () => { weighed.clear(); drawReadout(); } }, 'Clear ticks')),
@@ -156,7 +155,8 @@ export async function calculatorView(recipeId = null) {
           ? h('button', { type: 'button', class: 'btn', disabled: !isDirty(), onclick: () => save(false) }, isDirty() ? 'Save changes' : 'Saved')
           : h('button', { type: 'button', class: 'btn', onclick: () => save(false) }, 'Save recipe'),
         recipeId && h('button', { type: 'button', class: 'btn ghost', onclick: () => save(true) }, 'Save as new recipe'),
-        h('button', { type: 'button', class: 'btn ghost', onclick: logBake }, 'Log a bake'),
+        h('button', { type: 'button', class: 'btn ghost', onclick: () => startBake({ recipeId: recipeId && !isDirty() ? recipeId : null, formula: formulaOf(formula) }) }, 'Start a bake now'),
+        h('button', { type: 'button', class: 'btn ghost', onclick: logBake }, 'Log a past bake'),
       ),
     ].filter(Boolean));
   }

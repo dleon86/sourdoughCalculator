@@ -401,3 +401,49 @@ h3 { font: 650 1.05rem var(--font-display); margin: 0 0 12px; }
 @media (max-width: 640px) {
   .tabs a { padding: 6px 10px; }
 }
+
+/* ---- Bake-day timer --------------------------------------------------- */
+
+.active-list { display: grid; gap: 10px; margin-bottom: 32px; }
+.active-bake {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  padding: 16px 20px; border-radius: 12px; text-decoration: none; color: inherit;
+  background: var(--crust-wash); border: 1.5px solid var(--crust);
+}
+.active-bake .btn { margin-left: auto; }
+.pill { font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--crust); color: var(--paper); }
+
+.timer .page-head { margin-bottom: 20px; }
+.timer-stage {
+  padding: 28px 24px; border-radius: var(--r-panel); background: var(--paper); box-shadow: var(--shadow-panel);
+  display: grid; gap: 4px; margin-bottom: 20px;
+}
+.timer-stage.is-due { outline: 3px solid var(--crust); }
+.stage-name { font: 650 1.3rem var(--font-display); }
+.stage-time {
+  font: 700 clamp(3rem, 12vw, 5rem)/1 var(--font-display); letter-spacing: -0.03em;
+  color: var(--crust); font-variant-numeric: tabular-nums; margin: 4px 0 8px;
+}
+.due { color: var(--crust); }
+.timer-actions { display: grid; gap: 10px; margin-bottom: 28px; justify-items: stretch; }
+.btn.big { min-height: 60px; font-size: 1.15rem; border-radius: 14px; }
+.timer-actions .link-btn { justify-self: center; margin-top: 4px; }
+.timer-settings {
+  display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center;
+  padding: 16px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 20px;
+}
+.timer-settings .field { margin: 0; }
+.timer-settings select { width: auto; }
+.timer-extras { display: grid; gap: 12px; margin-bottom: 28px; }
+.weights summary { cursor: pointer; font-weight: 700; }
+.weights ul { list-style: none; padding: 0; margin: 10px 0 0; max-width: 320px; }
+.weights li { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed var(--rule); font-variant-numeric: tabular-nums; }
+.timer h2 { margin-bottom: 12px; }
+.timer-log { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 8px; }
+.timer-log li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 220px) auto; gap: 8px; align-items: center; }
+.log-label { font-weight: 700; }
+@media (max-width: 640px) {
+  .timer-log li { grid-template-columns: 1fr auto; }
+  .timer-log input { grid-column: 1; grid-row: 2; }
+  .timer-log .icon-btn { grid-row: 1 / span 2; grid-column: 2; }
+}

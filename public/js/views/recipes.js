@@ -1,6 +1,7 @@
 import * as api from '../api.js';
-import { describe } from '../calc.js';
-import { formatDay, h, toast } from '../ui.js';
+import { describe, formulaOf } from '../calc.js';
+import { formatDay, h, toast, fill } from '../ui.js';
+import { startBake } from './timer.js';
 
 export async function recipesView() {
   const recipes = await api.recipes.list();
@@ -13,7 +14,7 @@ export async function recipesView() {
         h('a', { class: 'btn', href: '#/' }, 'Open the calculator')));
       return;
     }
-    list.replaceChildren(...recipes.map((r) => h('li', {},
+    fill(list, ...recipes.map((r) => h('li', {},
       h('a', { class: 'recipe-main', href: `#/recipes/${r.id}` },
         h('span', { class: 'recipe-name' }, r.name),
         h('span', { class: 'recipe-meta' },
@@ -24,7 +25,11 @@ export async function recipesView() {
           : `Baked ${r.bakeCount} ${r.bakeCount === 1 ? 'time' : 'times'}, last ${formatDay(r.lastBakedOn)}`
             + (r.avgRating ? `, rated ${r.avgRating}` : '')),
       h('div', { class: 'row-actions' },
-        h('a', { class: 'btn small', href: `#/bakes/new?recipe=${r.id}` }, 'Log a bake'),
+        h('button', {
+          type: 'button', class: 'btn small',
+          onclick: () => startBake({ recipeId: r.id, formula: formulaOf(r) }),
+        }, 'Start a bake'),
+        h('a', { class: 'btn ghost small', href: `#/bakes/new?recipe=${r.id}` }, 'Log past bake'),
         h('button', {
           type: 'button', class: 'btn ghost small danger',
           onclick: async () => {

@@ -16,6 +16,15 @@ export function h(tag, props = {}, ...children) {
   return el;
 }
 
+// Replace an element's contents, with the same rules as h(): arrays are
+// flattened and null/false are skipped. Plain replaceChildren would print
+// "false" for `cond && node`.
+export function fill(el, ...children) {
+  el.replaceChildren();
+  append(el, children);
+  return el;
+}
+
 function append(el, children) {
   for (const child of children.flat(Infinity)) {
     if (child == null || child === false) continue;

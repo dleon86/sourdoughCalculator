@@ -6,6 +6,7 @@ import { recipesView } from './views/recipes.js';
 import { bakesView } from './views/bakes.js';
 import { bakeFormView } from './views/bake-form.js';
 import { loginView } from './views/login.js';
+import { timerView } from './views/timer.js';
 import { feedingFormView, starterEditView, startersView } from './views/starter.js';
 
 const routes = [
@@ -13,6 +14,7 @@ const routes = [
   [/^\/recipes\/(\d+)$/, 'calculator', (id) => calculatorView(Number(id))],
   [/^\/recipes$/, 'recipes', () => recipesView()],
   [/^\/bakes\/new$/, 'bakes', (_, q) => bakeFormView({ recipeId: Number(q.get('recipe')) || null })],
+  [/^\/bakes\/(\d+)\/timer$/, 'bakes', (id) => timerView(Number(id))],
   [/^\/bakes\/(\d+)$/, 'bakes', (id) => bakeFormView({ bakeId: Number(id) })],
   [/^\/bakes$/, 'bakes', () => bakesView()],
   [/^\/starter$/, 'starter', () => startersView()],

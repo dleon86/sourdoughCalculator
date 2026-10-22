@@ -2,8 +2,7 @@ import * as api from '../api.js';
 import { formatNumber } from '../calc.js';
 import {
   convertTemp, every, formatDayTime, formatElapsed, fromLocalInput, h,
-  showFieldErrors, tempUnit, toLocalInput, toast,
-} from '../ui.js';
+  showFieldErrors, tempUnit, toLocalInput, toast, fill } from '../ui.js';
 import { peakChart } from './peak-chart.js';
 
 // "1:2:2" from kept starter : flour : water, scaled so the starter is 1.
@@ -46,21 +45,21 @@ function starterPanel(starter, showName) {
 
   function drawStatus() {
     if (!last) {
-      status.replaceChildren(
+      fill(status, 
         h('p', {}, 'No feedings logged yet.'),
         h('a', { class: 'btn', href: `#/starter/${starter.id}/feed` }, 'Log a feeding'));
       return;
     }
     const temp = tempText(last);
     if (!last.peakedAt) {
-      status.replaceChildren(
+      fill(status, 
         h('p', { class: 'status-line' },
           h('span', { class: 'big-time' }, formatElapsed(last.fedAt)),
           h('span', {}, ` since feeding${temp ? `, ${temp}` : ''}. Still rising.`)),
         peakControls(last),
       );
     } else {
-      status.replaceChildren(
+      fill(status, 
         h('p', { class: 'status-line' },
           'Fed ', h('strong', {}, `${formatElapsed(last.fedAt)} ago`),
           `. Peaked after ${formatElapsed(last.fedAt, last.peakedAt)}`,
