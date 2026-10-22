@@ -3,3 +3,6 @@ node_modules/
 .idea/
 /bread.jpg
 /bread.png
+uploads/
+.vercel
+.env*.local

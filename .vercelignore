@@ -1,0 +1,12 @@
+legacy/
+.claude/
+uploads/
+test/
+Screenshot.png
+bread.jpg
+bread.png
+bread.ico
+breadSliced1.png
+.env
+.env.*
+!.env.example

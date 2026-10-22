@@ -9,16 +9,19 @@ export class ApiError extends Error {
   }
 }
 
-async function request(method, path, body) {
+export async function request(method, path, body, { raw = false } = {}) {
   let res;
   try {
     res = await fetch(`/api${path}`, {
       method,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
+      headers: body && !raw ? { 'Content-Type': 'application/json' } : undefined,
+      body: raw ? body : body ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError('Can’t reach the server. Is `npm start` running?', 0);
+    throw new ApiError('Can’t reach the server. Check your connection and try again.', 0);
+  }
+  if (res.status === 401 && path !== '/login') {
+    window.dispatchEvent(new Event('bread:signed-out'));
   }
   if (res.status === 204) return null;
   const data = await res.json().catch(() => ({}));
@@ -27,7 +30,7 @@ async function request(method, path, body) {
 }
 
 const resource = (name) => ({
-  list: () => request('GET', `/${name}`),
+  list: (query = '') => request('GET', `/${name}${query}`),
   get: (id) => request('GET', `/${name}/${id}`),
   create: (body) => request('POST', `/${name}`, body),
   update: (id, body) => request('PUT', `/${name}/${id}`, body),
@@ -36,3 +39,11 @@ const resource = (name) => ({
 
 export const recipes = resource('recipes');
 export const bakes = resource('bakes');
+export const starters = resource('starters');
+export const feedings = resource('feedings');
+
+export const session = {
+  get: () => request('GET', '/session'),
+  login: (password) => request('POST', '/login', { password }),
+  logout: () => request('POST', '/logout'),
+};

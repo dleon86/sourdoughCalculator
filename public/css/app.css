@@ -328,3 +328,10 @@ input[type="number"] { font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) {
   #toast { transition: none; }
 }
+
+/* ---- Sign in ---------------------------------------------------------- */
+
+.signed-out .tabs { display: none; }
+.login { max-width: 380px; padding-top: 8vh; display: grid; gap: 12px; justify-items: start; }
+.login img { border-radius: 18px; }
+.login-form { width: 100%; display: grid; gap: 4px; margin-top: 12px; }

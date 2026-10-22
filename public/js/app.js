@@ -1,9 +1,11 @@
 // Hash router: #/, #/recipes, #/recipes/:id, #/bakes, #/bakes/new, #/bakes/:id
+import * as api from './api.js';
 import { h } from './ui.js';
 import { calculatorView } from './views/calculator.js';
 import { recipesView } from './views/recipes.js';
 import { bakesView } from './views/bakes.js';
 import { bakeFormView } from './views/bake-form.js';
+import { loginView } from './views/login.js';
 
 const routes = [
   [/^\/$/, 'calculator', () => calculatorView()],
@@ -16,11 +18,18 @@ const routes = [
 
 const main = document.getElementById('main');
 let renderId = 0;
+let signedIn = false;
 
 async function render() {
+  const id = ++renderId;
+  document.body.classList.toggle('signed-out', !signedIn);
+  if (!signedIn) {
+    main.replaceChildren(loginView(() => { signedIn = true; render(); }));
+    return;
+  }
+
   const [path, query = ''] = (location.hash.slice(1) || '/').split('?');
   const match = routes.map(([re, tab, view]) => [path.match(re), tab, view]).find(([m]) => m);
-  const id = ++renderId;
 
   document.querySelectorAll('.tabs a').forEach((a) => {
     a.toggleAttribute('aria-current', match?.[1] === a.dataset.tab);
@@ -39,7 +48,7 @@ async function render() {
     if (id !== renderId) return; // a newer navigation won the race
     main.replaceChildren(node);
   } catch (err) {
-    if (id !== renderId) return;
+    if (id !== renderId || err.status === 401) return;
     main.replaceChildren(h('section', { class: 'page' },
       h('h1', {}, 'Couldn’t load this page'),
       h('p', { class: 'muted' }, err.message),
@@ -49,4 +58,15 @@ async function render() {
 }
 
 window.addEventListener('hashchange', render);
+window.addEventListener('bread:signed-out', () => {
+  if (!signedIn) return;
+  signedIn = false;
+  render();
+});
+
+try {
+  signedIn = (await api.session.get()).signedIn;
+} catch {
+  signedIn = true; // offline or server down: let the page show its own error
+}
 render();
