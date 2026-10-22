@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { Validator, badRequest } from '../validate.js';
+import { deleteFile } from '../storage.js';
 
 const router = Router();
 const EVENT_TYPES = new Set(['autolyse', 'mix', 'fold', 'shape', 'fridge', 'oven', 'out']);
@@ -23,8 +24,21 @@ function toApi(row) {
     bakeMinutes: row.bake_minutes,
     rating: row.rating,
     notes: row.notes,
+    photos: row.photos ?? [],
     createdAt: row.created_at,
   };
+}
+
+// Every read goes through here so bakes always come with their photos.
+const SELECT_BAKES = `
+  SELECT b.*, coalesce(
+    (SELECT json_agg(json_build_object('id', p.id, 'width', p.width, 'height', p.height) ORDER BY p.id)
+       FROM photos p WHERE p.bake_id = b.id), '[]') AS photos
+    FROM bakes b`;
+
+async function getBake(id) {
+  const { rows } = await pool.query(`${SELECT_BAKES} WHERE b.id = $1`, [id]);
+  return rows[0] ? toApi(rows[0]) : null;
 }
 
 function parseBake(body) {
@@ -67,15 +81,15 @@ const params = (b) => [
 
 router.get('/', async (req, res) => {
   const { rows } = await pool.query(
-    `SELECT * FROM bakes ORDER BY status = 'active' DESC, baked_on DESC, created_at DESC`,
+    `${SELECT_BAKES} ORDER BY b.status = 'active' DESC, b.baked_on DESC, b.created_at DESC`,
   );
   res.json(rows.map(toApi));
 });
 
 router.get('/:id', async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM bakes WHERE id = $1', [req.params.id]);
-  if (!rows[0]) return res.status(404).json({ error: 'Bake not found' });
-  res.json(toApi(rows[0]));
+  const bake = await getBake(req.params.id);
+  if (!bake) return res.status(404).json({ error: 'Bake not found' });
+  res.json(bake);
 });
 
 router.post('/', async (req, res) => {
@@ -88,7 +102,7 @@ router.post('/', async (req, res) => {
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
     params(bake),
   );
-  res.status(201).json(toApi(rows[0]));
+  res.status(201).json(await getBake(rows[0].id));
 });
 
 router.put('/:id', async (req, res) => {
@@ -103,12 +117,16 @@ router.put('/:id', async (req, res) => {
     [...params(bake), req.params.id],
   );
   if (!rows[0]) return res.status(404).json({ error: 'Bake not found' });
-  res.json(toApi(rows[0]));
+  res.json(await getBake(rows[0].id));
 });
 
 router.delete('/:id', async (req, res) => {
+  // Photo rows go with the bake (ON DELETE CASCADE); the files need
+  // removing from storage too.
+  const files = await pool.query('SELECT storage_key FROM photos WHERE bake_id = $1', [req.params.id]);
   const { rowCount } = await pool.query('DELETE FROM bakes WHERE id = $1', [req.params.id]);
   if (!rowCount) return res.status(404).json({ error: 'Bake not found' });
+  await Promise.allSettled(files.rows.map((f) => deleteFile(f.storage_key)));
   res.status(204).end();
 });
 

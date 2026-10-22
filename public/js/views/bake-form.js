@@ -2,6 +2,7 @@ import * as api from '../api.js';
 import { calculate, describe, formatGrams, formulaOf } from '../calc.js';
 import { h, showFieldErrors, store, toast, today, fill } from '../ui.js';
 import { PENDING_BAKE_KEY } from './calculator.js';
+import { photoField } from '../photos.js';
 
 const UNIT_KEY = 'bread.tempUnit';
 const toMinutes = (hours) => (hours === '' ? null : Math.round(Number(hours) * 60));
@@ -76,6 +77,8 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
       h('span', { 'aria-hidden': 'true' }, '★'),
       h('span', { class: 'sr-only' }, `${n} out of 5`))));
 
+  const photos = photoField({ bakeId: existing?.id ?? null, photos: existing?.photos ?? [] });
+
   const form = h('form', { class: 'bake-form', novalidate: true, onsubmit: (e) => { e.preventDefault(); submit(); } },
     h('fieldset', {},
       h('legend', {}, 'What you baked'),
@@ -116,6 +119,10 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
         placeholder: 'Crumb, crust, oven spring, what you’d change next time',
       }))),
 
+    h('fieldset', {},
+      h('legend', {}, 'Photos'),
+      photos.node),
+
     h('div', { class: 'form-actions' },
       h('button', { type: 'submit', class: 'btn' }, existing ? 'Save changes' : 'Save bake'),
       h('a', { class: 'btn ghost', href: '#/bakes' }, 'Cancel'),
@@ -143,7 +150,7 @@ export async function bakeFormView({ bakeId = null, recipeId = null }) {
     };
     try {
       if (existing) await api.bakes.update(existing.id, body);
-      else await api.bakes.create(body);
+      else await photos.flush((await api.bakes.create(body)).id);
       toast(existing ? 'Changes saved' : 'Bake saved');
       location.hash = '#/bakes';
     } catch (err) {

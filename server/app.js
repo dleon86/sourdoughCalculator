@@ -6,6 +6,7 @@ import recipes from './routes/recipes.js';
 import bakes from './routes/bakes.js';
 import starters from './routes/starters.js';
 import feedings from './routes/feedings.js';
+import photos from './routes/photos.js';
 
 const PUBLIC_DIR = path.join(import.meta.dirname, '..', 'public');
 
@@ -30,6 +31,7 @@ app.use('/api/recipes', recipes);
 app.use('/api/bakes', bakes);
 app.use('/api/starters', starters);
 app.use('/api/feedings', feedings);
+app.use('/api', photos);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Local only. On Vercel, files in public/ are served by the CDN instead.

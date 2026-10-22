@@ -2,6 +2,7 @@ import * as api from '../api.js';
 import { describe } from '../calc.js';
 import { formatDuration, formatElapsed, h, parseDay, stars } from '../ui.js';
 import { currentStage } from '../timeline.js';
+import { photoUrl } from '../photos.js';
 
 const monthFmt = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
 const weekdayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
@@ -52,6 +53,7 @@ function bakeItem(b) {
         facts.length > 0 && h('span', { class: 'facts' }, facts.map((f) => h('span', { class: 'fact' }, f))),
         b.notes && h('span', { class: 'bake-notes' }, b.notes),
       ),
+      b.photos.length > 0 && h('img', { class: 'bake-cover', src: photoUrl(b.photos[0]), alt: '', loading: 'lazy' }),
     ),
   );
 }

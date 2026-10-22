@@ -2,6 +2,7 @@
 // timings for the log are worked out from those taps when you finish.
 import * as api from '../api.js';
 import { calculate, formatGrams } from '../calc.js';
+import { uploadPhoto } from '../photos.js';
 import { bakeDay, currentStage, deriveTimings, folds, nextSteps, STEPS } from '../timeline.js';
 import {
   every, formatElapsed, formatTime, fromLocalInput, h, store, toLocalInput, toast, today, fill } from '../ui.js';
@@ -142,6 +143,20 @@ export async function timerView(bakeId) {
       fed && h('p', { class: 'muted' },
         `${starter.name} was fed ${formatElapsed(fed.fedAt, mix.at)} before mixing`,
         fed.peakedAt && new Date(fed.peakedAt) < new Date(mix.at) ? ` and peaked ${formatElapsed(fed.peakedAt, mix.at)} before.` : '.'),
+      h('label', { class: 'btn ghost small photo-add' },
+        h('input', {
+          type: 'file', accept: 'image/*', class: 'sr-only',
+          onchange: async (e) => {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (!file) return;
+            try {
+              await uploadPhoto(bake.id, file);
+              toast('Photo added to this bake');
+            } catch (err) { toast(err.message || 'Couldn’t upload that photo', { error: true }); }
+          },
+        }),
+        'Add a photo'),
       h('details', { class: 'weights' },
         h('summary', {}, 'Weights'),
         h('ul', {},
