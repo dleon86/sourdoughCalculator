@@ -47,10 +47,12 @@ function setCookie(res, req, value, maxAge) {
 export const authRouter = Router();
 
 authRouter.get('/session', (req, res) => {
-  res.json({ signedIn: isSignedIn(req), passwordRequired: authEnabled });
+  const locked = !authEnabled && Boolean(process.env.VERCEL);
+  res.json({ signedIn: !locked && isSignedIn(req), passwordRequired: authEnabled || locked });
 });
 
 authRouter.post('/login', async (req, res) => {
+  if (!authEnabled && process.env.VERCEL) return res.status(503).json({ error: 'No password is set for this app yet. Add APP_PASSWORD in Vercel and redeploy.' });
   if (!authEnabled) return res.json({ signedIn: true });
   const password = typeof req.body?.password === 'string' ? req.body.password : '';
   if (!safeEqual(password, PASSWORD)) {
@@ -69,6 +71,10 @@ authRouter.post('/logout', (req, res) => {
 });
 
 export function requireAuth(req, res, next) {
+  // Never run open on the internet: in the cloud a password is mandatory.
+  if (!authEnabled && process.env.VERCEL) {
+    return res.status(503).json({ error: 'This app has no password set. Add APP_PASSWORD in the Vercel project settings and redeploy.' });
+  }
   if (isSignedIn(req)) return next();
   res.status(401).json({ error: 'Sign in to continue' });
 }
