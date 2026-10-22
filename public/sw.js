@@ -8,10 +8,10 @@
 //   anything else            straight to the network
 //
 // Bump VERSION when the list below changes.
-const VERSION = 'bread-v1';
+const VERSION = 'bread-v2';
 
 const SHELL = [
-  '/', '/index.html', '/manifest.webmanifest', '/css/app.css',
+  '/index.html', '/manifest.webmanifest', '/css/app.css',
   '/js/app.js', '/js/api.js', '/js/calc.js', '/js/photos.js', '/js/timeline.js', '/js/ui.js',
   '/js/views/bake-form.js', '/js/views/bakes.js', '/js/views/calculator.js', '/js/views/compare.js',
   '/js/views/login.js', '/js/views/peak-chart.js', '/js/views/recipes.js', '/js/views/settings.js',

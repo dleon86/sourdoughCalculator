@@ -3,7 +3,7 @@
   "short_name": "Bread Log",
   "description": "Sourdough calculator, bake-day timer, starter tracker and bake journal.",
   "id": "/",
-  "start_url": "/#/",
+  "start_url": "/index.html#/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -15,8 +15,8 @@
     { "src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Feed starter", "url": "/#/starter", "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Bakes", "url": "/#/bakes", "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Calculator", "url": "/#/", "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }] }
+    { "name": "Feed starter", "url": "/index.html#/starter", "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Bakes", "url": "/index.html#/bakes", "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Calculator", "url": "/index.html#/", "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }] }
   ]
 }

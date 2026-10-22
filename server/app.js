@@ -36,8 +36,10 @@ app.use('/api', photos);
 app.use('/api', backup);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
-// Local only. On Vercel, files in public/ are served by the CDN instead.
+// Local only. On Vercel, files in public/ are served by the CDN instead,
+// but "/" still reaches this app, so point it at the page.
 app.use(express.static(PUBLIC_DIR));
+app.get('/', (req, res) => res.redirect(302, '/index.html'));
 
 // Express 5 forwards rejected promises from async handlers to here.
 app.use((err, req, res, next) => {
