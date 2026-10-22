@@ -1,13 +1,25 @@
 # Bread Log
 
-A sourdough formula calculator and bake journal. Set a target dough weight,
-hydration, salt and starter, and it gives you gram weights to put on the
-scale. Save formulas as recipes, then log each bake (timings, temperatures,
-rating, notes) so you can see what changed from loaf to loaf.
+A sourdough notebook that runs on your phone and your computer:
 
-## Running it
+- **Calculator.** Start from a target dough weight or from the flour you
+  have. Weights update as you type; tap each one off as it goes on the scale.
+- **Bake-day timer.** Tap Mix, folds, Shape, Into the fridge, Into the oven.
+  It keeps the clock, can remind you to fold, keeps the screen on, and fills
+  in bulk/proof/bake times when you finish.
+- **Starter tracker.** Log feedings with temperature and whether it was in
+  the warmer, tap when it peaks, and see a chart of time-to-peak against
+  temperature.
+- **Bake log** with ratings, notes and photos, and **side-by-side
+  comparison** of any two bakes.
+- **Backups** (JSON, restorable) and a bakes CSV for spreadsheets.
+- **Installable on Android** and usable offline for anything already loaded.
 
-Needs Node 20.6+ and a local PostgreSQL server.
+Live: https://bread-log-peach.vercel.app (Vercel project `bread-log`).
+
+## Running it locally
+
+Needs Node 20.6+ (24 recommended) and a local PostgreSQL server.
 
 ```bash
 cp .env.example .env   # then set PGPASSWORD
@@ -15,9 +27,33 @@ npm install
 npm start              # http://localhost:3000
 ```
 
-On first start the server creates the `breadlog` database and applies
-everything in `server/migrations/`. Use `npm run dev` to restart on file
-changes, and `npm test` to run the calculator tests.
+The server creates the `breadlog` database and runs migrations on first
+start. `npm run dev` restarts on changes; `npm test` runs the tests.
+Without `APP_PASSWORD` in `.env` there's no sign-in screen locally.
+
+## The cloud copy
+
+| Piece | Where |
+| --- | --- |
+| App | Vercel, Express on Fluid Compute, region iad1 |
+| Database | Neon Postgres (Vercel Marketplace), `DATABASE_URL` |
+| Photos | Private Vercel Blob store `bread-log-photos` |
+| Sign-in | `APP_PASSWORD` env var, signed cookie for 180 days |
+
+The cloud copy refuses to serve any data until `APP_PASSWORD` is set.
+
+```bash
+vercel env add APP_PASSWORD production   # choose a long passphrase
+vercel deploy --prod
+```
+
+Changing `APP_PASSWORD` (and redeploying) signs out every device.
+
+### Installing on Android
+
+Open the live URL in Chrome, sign in, then menu → **Add to Home screen** /
+**Install app**. Long-press the icon for shortcuts to the starter page and
+bakes.
 
 ## How the math works
 
@@ -31,34 +67,37 @@ All percentages are baker's percentages:
 | Starter hydration | Water ÷ flour inside the starter (100% = equal parts) |
 | Flour blend | Share of the flour you add; normalised, so 80/20 and 4/1 are the same |
 
-Total flour is `dough weight ÷ (1 + hydration + salt)`, and the rest follows
-from there. See `public/js/calc.js`.
+See `public/js/calc.js`. Bake-day timings come from `public/js/timeline.js`.
 
 ## Layout
 
 ```
+server.js                 Entry: Vercel imports it; locally it listens
 server/
-  index.js            Express app, error handling
-  db.js               Connection pool, creates the DB, runs migrations
-  migrations/*.sql    Schema, applied in name order, once each
-  routes/             /api/recipes and /api/bakes (CRUD)
+  app.js                  Express app, routes, error handling
+  db.js                   Pool, creates local DB, runs migrations
+  auth.js                 Password sign-in
+  storage.js              Photo files: Blob in the cloud, uploads/ locally
+  migrations/             Numbered schema changes, listed in index.js
+  routes/                 recipes, bakes, starters, feedings, photos, backup
 public/
-  index.html          App shell
+  index.html, sw.js, manifest.webmanifest
   css/app.css
-  js/calc.js          Formula math (pure, shared with tests)
-  js/app.js           Hash router
-  js/views/           Calculator, recipes, bakes, bake form
-test/calc.test.js
-legacy/               The original 2023 to 2025 versions, kept for reference
+  js/calc.js, timeline.js Pure logic, shared with the tests
+  js/views/               One file per screen
+test/
+legacy/                   The original 2023 to 2025 versions, for reference
 ```
 
-To change the schema, add a new file like `server/migrations/002_add_photos.sql`.
-Don't edit one that has already run.
+**Adding a schema change:** create `server/migrations/006_something.js`
+(export the SQL as a string), add it to the end of `migrations/index.js`,
+and never edit one that has already run. **Adding a front-end file:** also
+add it to the list in `public/sw.js` (a test checks this).
 
 ## Your turn: flour blend warnings
 
 `flourWarnings()` in `public/js/calc.js` decides what the calculator says
 when your flour percentages don't add up to 100. The math already copes with
-any blend, so this is purely a question of how you want the app to talk to you.
+any blend, so this is purely how you want the app to talk to you.
 
 The images in this repository were generated by Stable Diffusion.
