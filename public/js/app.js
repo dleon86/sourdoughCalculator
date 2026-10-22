@@ -82,3 +82,8 @@ try {
   signedIn = true; // offline or server down: let the page show its own error
 }
 render();
+
+// Installable app + offline support. Only on a secure origin (https or localhost).
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch((err) => console.warn('Service worker not registered', err));
+}
