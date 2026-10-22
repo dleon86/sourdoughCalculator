@@ -32,9 +32,12 @@ async function ensureDatabase() {
 
 // Apply every .sql file in migrations/ that hasn't run yet, in name order.
 // The advisory lock stops two cold-starting cloud instances from running
-// the same migration at once.
+// the same migration at once. It belongs to one database session, so this
+// uses Neon's direct (unpooled) connection rather than the pooler.
 async function migrate() {
-  const client = await pool.connect();
+  const direct = process.env.DATABASE_URL_UNPOOLED || connectionString;
+  const client = new pg.Client(direct ? { connectionString: direct } : {});
+  await client.connect();
   try {
     await client.query('SELECT pg_advisory_lock(20231024)');
     await client.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -61,7 +64,7 @@ async function migrate() {
     }
   } finally {
     await client.query('SELECT pg_advisory_unlock(20231024)').catch(() => {});
-    client.release();
+    await client.end();
   }
 }
 
