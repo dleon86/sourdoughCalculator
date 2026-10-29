@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, DEFAULT_FORMULA } from '../public/js/calc.js';
+import { calculate, DEFAULT_FORMULA, flourWarnings } from '../public/js/calc.js';
 
 const close = (actual, expected, msg) =>
   assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: expected ${expected}, got ${actual}`);
@@ -55,4 +55,19 @@ test('flour basis: 500 g flour, 20% starter at 100% gives 100 g starter', () => 
   close(r.starter, 100, 'starter');
   close(r.totalFlour, 550, 'total flour');
   close(r.water + r.starterWater, 550 * 0.75, 'total water');
+});
+
+test('flour warning only when the blend does not add to 100', () => {
+  const warn = (pcts) => flourWarnings(pcts.map((pct, i) => ({ name: `F${i}`, pct })));
+  assert.deepEqual(warn([80, 20]), []);
+  assert.deepEqual(warn([61.4, 32.3, 6.3]), [], 'rounding noise is not a mistake');
+  assert.equal(warn([80, 30]).length, 1);
+  assert.match(warn([80, 30])[0], /110%/);
+  assert.equal(warn([3, 1]).length, 1, 'a 3:1 ratio still gets a heads-up');
+});
+
+test('calculate() surfaces the flour warning', () => {
+  const r = calculate({ ...DEFAULT_FORMULA, flours: [{ name: 'A', pct: 80 }, { name: 'B', pct: 30 }] });
+  assert.equal(r.warnings.length, 1);
+  assert.equal(calculate(DEFAULT_FORMULA).warnings.length, 0);
 });

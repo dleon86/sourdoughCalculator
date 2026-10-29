@@ -92,8 +92,11 @@ export function calculate(formula) {
 // flours: [{ name: string, pct: number }]
 // returns: string[] of plain-language messages (empty = nothing to say)
 export function flourWarnings(flours) {
-  // TODO(you): decide how strict to be. See the README section "Your turn".
-  return [];
+  const total = flours.reduce((sum, f) => sum + (Number(f.pct) || 0), 0);
+  // Decimals don't add exactly in binary (61.4 + 32.3 + 6.3 is
+  // 99.99999999999999), so "close enough to 100" counts as 100.
+  if (Math.abs(total - 100) <= 0.01) return [];
+  return [`Heads up: your flour percentages add up to ${formatNumber(total)}%, not 100%. The weights are scaled to fit, so revise the recipe if you care about that.`];
 }
 
 // Short human summary of a formula, e.g. "900 g, 75% hydration".

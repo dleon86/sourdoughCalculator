@@ -83,8 +83,8 @@
 <div class="table-wrap"><table>
   <tr><th>Item</th><th>State</th></tr>
   <tr><td>Features</td><td>All planned features are built, tested locally and committed (list in <a href="#project">section 3</a>).</td></tr>
-  <tr><td>Tests</td><td><code>npm test</code>: 16 pass, 0 fail (Node's built-in runner).</td></tr>
-  <tr><td>Git</td><td>Branch <code>main</code>, pushed to <code>https://github.com/dleon86/sourdoughCalculator.git</code> on 2026-10-28. The only uncommitted change is the owner's in-progress <code>flourWarnings()</code> in <code>public/js/calc.js</code> (see backlog).</td></tr>
+  <tr><td>Tests</td><td><code>npm test</code>: 18 pass, 0 fail (Node's built-in runner).</td></tr>
+  <tr><td>Git</td><td>Branch <code>main</code>, pushed to <code>https://github.com/dleon86/sourdoughCalculator.git</code> on 2026-10-28. Working tree clean. The owner's <code>flourWarnings()</code> is finished and tested.</td></tr>
   <tr><td>Live site</td><td><a href="https://bread-log-peach.vercel.app">https://bread-log-peach.vercel.app</a>. Deployed and healthy (<code>/api/health</code> returns <code>{"ok":true}</code>), database migrated.</td></tr>
   <tr><td>Cloud sign-in</td><td><code>APP_PASSWORD</code> <strong>is set</strong> on Vercel (Production, stored as a Secret), copied from the owner's <code>.env</code>. <strong>It takes effect on the next production deploy</strong>, which is blocked (next row). Until then the live site still answers 503 on data endpoints, which is the intended "no password" lock.</td></tr>
   <tr><td>Deploys</td><td><strong>Blocked by Vercel:</strong> <code>vercel deploy --prod</code> returns <code>"Challenge required"</code> (account verification). The owner must complete it, e.g. run <code>vercel login</code> or deploy once from their own terminal. Don't loop on retries.</td></tr>
@@ -100,7 +100,7 @@
   <li><span class="tag user">Owner</span><strong>Clear Vercel's "Challenge required" and redeploy.</strong> The password is already set; it needs one deploy to take effect:
 <pre><code>vercel login
 vercel deploy --prod</code></pre>
-  Deploy with the owner's unfinished <code>calc.js</code> edit set aside (<code>git stash push -- public/js/calc.js</code>, deploy, <code>git stash pop</code>) unless it's finished. Then verify: <code>/api/session</code> returns <code>{"signedIn":false,"passwordRequired":true}</code> and <code>/api/recipes</code> returns <strong>401</strong> (not 503). Signing in on the site should work.</li>
+  Then verify: <code>/api/session</code> returns <code>{"signedIn":false,"passwordRequired":true}</code> and <code>/api/recipes</code> returns <strong>401</strong> (not 503). Signing in on the site should work.</li>
   <li><span class="tag p0">P0</span><strong>Check the Neon plan and region.</strong> The Marketplace install (<code>vercel integration add neon --name bread-log-db</code>) showed no plan prompt, and the plan was never confirmed. In the Vercel dashboard → Storage → <code>bread-log-db</code>: it should be on the <strong>Free</strong> plan and ideally in US East (functions run in <code>iad1</code>). If it's in another region, tell the owner. Don't recreate it without asking.</li>
   <li><span class="tag p1">P1</span><strong>Test on a real Android phone</strong> (the owner does this; you can prepare a checklist): install from Chrome; sign in; take a photo with the camera from the bake form and the timer; timer "Keep the screen on" (Wake Lock); fold reminder notification permission; airplane mode, then reopen the app (cached pages and data should show); launcher shortcuts.</li>
   <li><span class="tag p1">P1</span><strong>Optional auto-deploys:</strong> <code>vercel git connect</code> so pushes to <code>main</code> deploy. Ask the owner first, since it changes the project's settings.</li>
@@ -109,8 +109,7 @@ vercel deploy --prod</code></pre>
 <h3>Backlog (not started)</h3>
 <div class="table-wrap"><table>
   <tr><th>Priority</th><th>Task</th><th>Where / notes</th></tr>
-  <tr><td><span class="tag user">Owner</span></td><td><strong><code>flourWarnings()</code> is the owner's to write, and is in progress.</strong> Their first draft returns the message unconditionally, so it shows even for 80/20. Feedback has been given; it needs a check that the percentages sum to 100.</td><td><code>public/js/calc.js</code>. The owner is learning; <strong>don't implement it unless they ask.</strong> It decides the message when flour percentages don't sum to 100. The math already normalises.</td></tr>
-  <tr><td><span class="tag p1">P1</span></td><td>Move local Node to 24 LTS and pin <code>"engines": {"node": "24.x"}</code></td><td><code>package.json</code> currently has <code>"&gt;=20.6"</code>, and the Vercel build warns about the open range. Pinning 24.x locally on Node 20 makes npm print EBADENGINE, so upgrade local Node first.</td></tr>
+    <tr><td><span class="tag p1">P1</span></td><td>Move local Node to 24 LTS and pin <code>"engines": {"node": "24.x"}</code></td><td><code>package.json</code> currently has <code>"&gt;=20.6"</code>, and the Vercel build warns about the open range. Pinning 24.x locally on Node 20 makes npm print EBADENGINE, so upgrade local Node first.</td></tr>
   <tr><td><span class="tag p1">P1</span></td><td>Clean up orphaned photo files</td><td><code>server/routes/photos.js</code> saves the file, <em>then</em> inserts the row. If the insert fails, the blob is orphaned. Also, a restore (<code>POST /api/import</code>) without <code>?photos=keep</code> drops photo rows but leaves the files. Options: insert first and delete on failure, plus an admin "sweep" that lists Blob keys and deletes those not in <code>photos</code>.</td></tr>
   <tr><td><span class="tag p1">P1</span></td><td>Slow down password guessing</td><td><code>server/auth.js</code> only adds an 800 ms delay on a wrong password. Fine for one user, but a per-IP counter (or Vercel Firewall rate limit on <code>/api/login</code>) would be better.</td></tr>
   <tr><td><span class="tag p2">P2</span></td><td>Fold reminders when the app is closed</td><td>Currently in-page only (<code>public/js/views/timer.js</code>, <code>checkReminder</code>). Doing it properly needs Web Push (VAPID keys as env vars, a subscription table, a scheduled sender such as Vercel Cron or Queues). Discuss cost and complexity with the owner first.</td></tr>
@@ -246,7 +245,7 @@ legacy/                    original 2023–2025 files, never run; kept for refer
   <li>Keep everything free-tier friendly. Ask before anything that costs money, creates accounts or resources, publishes, or sends anything outward.</li>
 </ul>
 
-<div class="box ok"><p><strong>Quick sanity check before you start:</strong> <code>git status</code> (clean apart from the owner's <code>calc.js</code> draft, if it's still unfinished), <code>npm test</code> (16 pass), <code>npm start</code> and open <code>http://localhost:3000</code>, then <code>curl https://bread-log-peach.vercel.app/api/health</code>.</p></div>
+<div class="box ok"><p><strong>Quick sanity check before you start:</strong> <code>git status</code> (should be clean), <code>npm test</code> (18 pass), <code>npm start</code> and open <code>http://localhost:3000</code>, then <code>curl https://bread-log-peach.vercel.app/api/health</code>.</p></div>
 
 </main>
 </body>
