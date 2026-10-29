@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bread Log Handoff</title>
+<style>
+  :root {
+    --bg: #f2f4f6; --paper: #fff; --ink: #22262c; --soft: #5a636e; --rule: #d3d9e0;
+    --blue: #2e4a6e; --blue-wash: #e3eaf3; --crust: #b5702a; --crust-wash: #f6ead9;
+    --danger: #a33a2a; --danger-wash: #f8e4e0; --ok: #3c6e47; --ok-wash: #e2efe5;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16191d; --paper: #1f2328; --ink: #e9ecef; --soft: #a2abb5; --rule: #343a42;
+      --blue: #8fb0d9; --blue-wash: #23303f; --crust: #e2a35c; --crust-wash: #3a2c1c;
+      --danger: #e58a7b; --danger-wash: #3d2420; --ok: #86c095; --ok-wash: #1f3326;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 920px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font-size: 2.1rem; line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 1.35rem; margin: 48px 0 12px; padding-top: 16px; border-top: 2px solid var(--ink); }
+  h3 { font-size: 1.05rem; margin: 24px 0 8px; }
+  p, li { max-width: 75ch; }
+  a { color: var(--blue); }
+  code, pre { font-family: "Cascadia Code", Consolas, monospace; font-size: 0.9em; }
+  code { background: var(--blue-wash); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  pre { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 0.95rem; background: var(--paper); }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px; border: 1px solid var(--rule); }
+  th { background: var(--blue-wash); }
+  .table-wrap { overflow-x: auto; }
+  .lede { color: var(--soft); font-size: 1.05rem; }
+  .box { border-radius: 10px; padding: 14px 16px; margin: 16px 0; border: 1px solid var(--rule); background: var(--paper); }
+  .box.warn { background: var(--crust-wash); border-color: var(--crust); }
+  .box.stop { background: var(--danger-wash); border-color: var(--danger); }
+  .box.ok { background: var(--ok-wash); border-color: var(--ok); }
+  .box > :first-child { margin-top: 0; } .box > :last-child { margin-bottom: 0; }
+  .tag { display: inline-block; font-size: 0.78rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; margin-right: 6px; white-space: nowrap; }
+  .p0 { background: var(--danger); color: var(--paper); }
+  .p1 { background: var(--crust); color: var(--paper); }
+  .p2 { background: var(--blue); color: var(--paper); }
+  .user { background: var(--ok); color: var(--paper); }
+  nav ol { columns: 2; column-gap: 32px; padding-left: 20px; }
+  @media (max-width: 640px) { nav ol { columns: 1; } h1 { font-size: 1.7rem; } }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; }
+  dt { font-weight: 700; } dd { margin: 0; }
+  @media (max-width: 640px) { dl { grid-template-columns: 1fr; } dd { margin-bottom: 8px; } }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Bread Log: handoff for the next agent</h1>
+<p class="lede">Written 2026-10-21, updated 2026-10-28, at the end of a Claude Code session, so another agent (e.g. Codex) can continue. Repo: <code>C:\Users\danny\dev\Projects\Bread</code>. Read this top to bottom before changing anything.</p>
+
+<div class="box stop">
+  <p><strong>Never print, log, commit or paste secret values.</strong> This document names <em>where</em> secrets live, never what they are. Use <code>vercel env ls</code> (names only), not <code>vercel env pull</code>, unless the owner asks. Don't choose or set <code>APP_PASSWORD</code> yourself; the owner sets it.</p>
+</div>
+
+<nav aria-label="Contents">
+  <ol>
+    <li><a href="#status">Where things stand</a></li>
+    <li><a href="#next">What's left, in order</a></li>
+    <li><a href="#project">Project description</a></li>
+    <li><a href="#secrets">Keys, secrets and config: locations</a></li>
+    <li><a href="#run">Run, test, deploy</a></li>
+    <li><a href="#arch">Architecture and file map</a></li>
+    <li><a href="#data">Data model and API</a></li>
+    <li><a href="#rules">Conventions and gotchas</a></li>
+    <li><a href="#owner">Working with the owner</a></li>
+  </ol>
+</nav>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="status">1. Where things stand</h2>
+
+<div class="table-wrap"><table>
+  <tr><th>Item</th><th>State</th></tr>
+  <tr><td>Features</td><td>All planned features are built, tested locally and committed (list in <a href="#project">section 3</a>).</td></tr>
+  <tr><td>Tests</td><td><code>npm test</code>: 16 pass, 0 fail (Node's built-in runner).</td></tr>
+  <tr><td>Git</td><td>Branch <code>main</code>, pushed to <code>https://github.com/dleon86/sourdoughCalculator.git</code> on 2026-10-28. The only uncommitted change is the owner's in-progress <code>flourWarnings()</code> in <code>public/js/calc.js</code> (see backlog).</td></tr>
+  <tr><td>Live site</td><td><a href="https://bread-log-peach.vercel.app">https://bread-log-peach.vercel.app</a>. Deployed and healthy (<code>/api/health</code> returns <code>{"ok":true}</code>), database migrated.</td></tr>
+  <tr><td>Cloud sign-in</td><td><code>APP_PASSWORD</code> <strong>is set</strong> on Vercel (Production, stored as a Secret), copied from the owner's <code>.env</code>. <strong>It takes effect on the next production deploy</strong>, which is blocked (next row). Until then the live site still answers 503 on data endpoints, which is the intended "no password" lock.</td></tr>
+  <tr><td>Deploys</td><td><strong>Blocked by Vercel:</strong> <code>vercel deploy --prod</code> returns <code>"Challenge required"</code> (account verification). The owner must complete it, e.g. run <code>vercel login</code> or deploy once from their own terminal. Don't loop on retries.</td></tr>
+  <tr><td>Local database</td><td>Postgres 15 on Windows (service <code>postgresql-x64-15</code>), database <code>breadlog</code>, all 5 migrations applied, <strong>no data</strong> (test data was deleted).</td></tr>
+  <tr><td>Local Node</td><td>v20.11.1. Works, but Vercel deprecated Node 20 on 2026-10-01; the cloud runs Node 24.</td></tr>
+</table></div>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="next">2. What's left, in order</h2>
+
+<h3>Blocking: finish going live</h3>
+<ol>
+  <li><span class="tag user">Owner</span><strong>Clear Vercel's "Challenge required" and redeploy.</strong> The password is already set; it needs one deploy to take effect:
+<pre><code>vercel login
+vercel deploy --prod</code></pre>
+  Deploy with the owner's unfinished <code>calc.js</code> edit set aside (<code>git stash push -- public/js/calc.js</code>, deploy, <code>git stash pop</code>) unless it's finished. Then verify: <code>/api/session</code> returns <code>{"signedIn":false,"passwordRequired":true}</code> and <code>/api/recipes</code> returns <strong>401</strong> (not 503). Signing in on the site should work.</li>
+  <li><span class="tag p0">P0</span><strong>Check the Neon plan and region.</strong> The Marketplace install (<code>vercel integration add neon --name bread-log-db</code>) showed no plan prompt, and the plan was never confirmed. In the Vercel dashboard → Storage → <code>bread-log-db</code>: it should be on the <strong>Free</strong> plan and ideally in US East (functions run in <code>iad1</code>). If it's in another region, tell the owner. Don't recreate it without asking.</li>
+  <li><span class="tag p1">P1</span><strong>Test on a real Android phone</strong> (the owner does this; you can prepare a checklist): install from Chrome; sign in; take a photo with the camera from the bake form and the timer; timer "Keep the screen on" (Wake Lock); fold reminder notification permission; airplane mode, then reopen the app (cached pages and data should show); launcher shortcuts.</li>
+  <li><span class="tag p1">P1</span><strong>Optional auto-deploys:</strong> <code>vercel git connect</code> so pushes to <code>main</code> deploy. Ask the owner first, since it changes the project's settings.</li>
+</ol>
+
+<h3>Backlog (not started)</h3>
+<div class="table-wrap"><table>
+  <tr><th>Priority</th><th>Task</th><th>Where / notes</th></tr>
+  <tr><td><span class="tag user">Owner</span></td><td><strong><code>flourWarnings()</code> is the owner's to write, and is in progress.</strong> Their first draft returns the message unconditionally, so it shows even for 80/20. Feedback has been given; it needs a check that the percentages sum to 100.</td><td><code>public/js/calc.js</code>. The owner is learning; <strong>don't implement it unless they ask.</strong> It decides the message when flour percentages don't sum to 100. The math already normalises.</td></tr>
+  <tr><td><span class="tag p1">P1</span></td><td>Move local Node to 24 LTS and pin <code>"engines": {"node": "24.x"}</code></td><td><code>package.json</code> currently has <code>"&gt;=20.6"</code>, and the Vercel build warns about the open range. Pinning 24.x locally on Node 20 makes npm print EBADENGINE, so upgrade local Node first.</td></tr>
+  <tr><td><span class="tag p1">P1</span></td><td>Clean up orphaned photo files</td><td><code>server/routes/photos.js</code> saves the file, <em>then</em> inserts the row. If the insert fails, the blob is orphaned. Also, a restore (<code>POST /api/import</code>) without <code>?photos=keep</code> drops photo rows but leaves the files. Options: insert first and delete on failure, plus an admin "sweep" that lists Blob keys and deletes those not in <code>photos</code>.</td></tr>
+  <tr><td><span class="tag p1">P1</span></td><td>Slow down password guessing</td><td><code>server/auth.js</code> only adds an 800 ms delay on a wrong password. Fine for one user, but a per-IP counter (or Vercel Firewall rate limit on <code>/api/login</code>) would be better.</td></tr>
+  <tr><td><span class="tag p2">P2</span></td><td>Fold reminders when the app is closed</td><td>Currently in-page only (<code>public/js/views/timer.js</code>, <code>checkReminder</code>). Doing it properly needs Web Push (VAPID keys as env vars, a subscription table, a scheduled sender such as Vercel Cron or Queues). Discuss cost and complexity with the owner first.</td></tr>
+  <tr><td><span class="tag p2">P2</span></td><td>Logging while offline</td><td><code>public/sw.js</code> caches reads only. Writes made offline fail with a toast. A queue (IndexedDB + replay) would let feedings be logged without signal.</td></tr>
+  <tr><td><span class="tag p2">P2</span></td><td>Photos in backups</td><td><code>server/routes/backup.js</code> exports rows only. A zip export (rows + files) would make moving between local and cloud complete.</td></tr>
+  <tr><td><span class="tag p2">P2</span></td><td>Starter trend over time</td><td><code>public/js/views/peak-chart.js</code> plots temperature vs time to peak. A second small chart (time to peak by date) would show whether the starter is getting stronger. Follow the existing chart rules: one axis, colour-blind-checked palette, legend, tooltips.</td></tr>
+  <tr><td><span class="tag p2">P2</span></td><td>Small fixes</td><td>
+    <ul>
+      <li>Backup filename uses the UTC date (<code>stamp()</code> in <code>backup.js</code>).</li>
+      <li>The timer adds a <code>visibilitychange</code> listener on every visit (<code>timer.js</code>). It's harmless (it checks <code>isConnected</code>) but leaks a little.</li>
+      <li>Add a <code>.gitattributes</code> (<code>* text=auto eol=lf</code>) to stop the CRLF warnings on every commit.</li>
+      <li><code>Screenshot.png</code> in the root shows the 2023 UI, and the README no longer uses it. Ask before deleting.</li>
+    </ul></td></tr>
+</table></div>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="project">3. Project description</h2>
+<p><strong>Bread Log</strong> is a personal sourdough notebook for one baker, used mostly on an Android phone in the kitchen. It began in 2023 as a copy-pasted ChatGPT calculator whose database save never worked. In this session it was rebuilt: Express 5 API, Postgres, vanilla ES-module front end, no build step.</p>
+<p>The owner is getting back into baking, lives in a cold house, and is buying a starter warmer. A key goal is seeing how temperature affects starter activity. Hosting must be free or very cheap.</p>
+<ul>
+  <li><strong>Calculator</strong>: baker's percentages; start from target dough weight <em>or</em> flour on hand; live weights; tap to tick ingredients off; save as recipe.</li>
+  <li><strong>Bake-day timer</strong>: tap steps (autolyse, mix, folds, shape, fridge, oven, out), editable times, undo, fold reminder, screen wake lock. Finishing derives bulk, proof and bake minutes.</li>
+  <li><strong>Starter tracker</strong>: feedings with ratio, temperature, warmer yes/no, peak time and rise %. Live "since feeding" clock, and a scatter chart of hours-to-peak vs temperature, warmer vs counter.</li>
+  <li><strong>Bake log</strong>: timeline by month, ratings, notes, photos; each bake keeps a snapshot of its formula.</li>
+  <li><strong>Compare</strong> any two bakes side by side, with differences highlighted.</li>
+  <li><strong>Backups</strong>: JSON export/restore and a bakes CSV.</li>
+  <li><strong>PWA</strong>: installable on Android, offline reads, launcher shortcuts.</li>
+  <li><strong>Sign-in</strong>: one password (<code>APP_PASSWORD</code>), signed cookie for 180 days. It's mandatory in the cloud; with no password set, the cloud copy refuses to serve data.</li>
+</ul>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="secrets">4. Keys, secrets and config: locations</h2>
+<p>Locations and names only. Values are deliberately absent.</p>
+<div class="table-wrap"><table>
+  <tr><th>What</th><th>Where</th><th>Notes</th></tr>
+  <tr><td>Local Postgres credentials</td><td><code>.env</code> in the repo root (git-ignored): <code>PORT</code>, <code>PGHOST</code>, <code>PGPORT</code>, <code>PGUSER</code>, <code>PGPASSWORD</code>, <code>PGDATABASE</code></td><td>Loaded with <code>node --env-file=.env</code>. Template: <code>.env.example</code> (committed, no secrets). The password was checked and is <strong>not</strong> in git history; <code>legacy/server.js</code> reads it from the environment.</td></tr>
+  <tr><td>Local sign-in</td><td><code>APP_PASSWORD</code> in <code>.env</code></td><td><strong>Set</strong>, so the local app asks for it too. The value is in double quotes because it contains <code>#</code>, which Node's <code>.env</code> parser otherwise treats as a comment (it silently cut the password short). Optional <code>SESSION_SECRET</code> overrides the cookie-signing key (by default it's derived from <code>APP_PASSWORD</code>).</td></tr>
+  <tr><td>Cloud env vars</td><td>Vercel project <code>bread-log</code> → Settings → Environment Variables (or <code>vercel env ls</code>)</td><td>
+    Set by the <strong>Neon</strong> integration: <code>DATABASE_URL</code> (pooled, used by the app), <code>DATABASE_URL_UNPOOLED</code> (used for migrations), plus <code>PG*</code>, <code>POSTGRES_*</code>, <code>NEON_*</code>, <code>VITE_NEON_AUTH_URL</code> (unused).<br>
+    Set by the <strong>Blob</strong> store: <code>BLOB_READ_WRITE_TOKEN</code>.<br>
+    <strong>Missing:</strong> <code>APP_PASSWORD</code> (the owner sets it).</td></tr>
+  <tr><td>Vercel project link</td><td><code>.vercel/project.json</code> (git-ignored)</td><td>Project <code>bread-log</code>, id <code>prj_hY0Q8OiotyRhggeUsT46xDzQJJ09</code>, team <code>daniels-projects-a163d25a</code>.</td></tr>
+  <tr><td>Vercel CLI login</td><td><code>%APPDATA%\com.vercel.cli\Data\auth.json</code></td><td>The owner's account (<code>admin-1449</code>). Treat as a credential: never read it out or copy it. The CLI uses it automatically. The CLI was upgraded to 65.0.0 (Express needs ≥ 47.0.5).</td></tr>
+  <tr><td>Database (cloud)</td><td>Neon resource <code>bread-log-db</code>, managed through Vercel → Storage</td><td>Created via Vercel Marketplace. Don't re-run <code>vercel integration add neon</code>: it would create a second database.</td></tr>
+  <tr><td>Photo storage (cloud)</td><td>Vercel Blob store <code>bread-log-photos</code> (<code>store_hFsHldcuKAiVZxXu</code>), <strong>private</strong>, region iad1</td><td>Files are only served through the signed-in <code>/api/photos/:id</code> route. Locally, photos go to <code>uploads/</code> (git-ignored).</td></tr>
+  <tr><td>Git remote</td><td>GitHub <code>dleon86/sourdoughCalculator</code></td><td>Plain <code>git push</code> over HTTPS uses the owner's Git credential manager. The GitHub MCP connector for Claude has an expired token; it isn't needed.</td></tr>
+</table></div>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="run">5. Run, test, deploy</h2>
+<pre><code># local (needs the Postgres service running)
+npm install
+npm start            # http://localhost:3000; creates DB + runs migrations on first start
+npm run dev          # same, restarts on file changes
+npm test             # node --test test/
+
+# cloud
+vercel env ls        # names only
+vercel deploy --prod # production deploy from the working tree
+vercel logs --deployment &lt;url&gt; --since 10m --json   # runtime errors
+vercel inspect &lt;url&gt; --logs                          # build log</code></pre>
+<p>A preview config for Claude's browser pane is in <code>.claude/launch.json</code> (<code>npm start</code>, port 3000). <code>vercel dev</code> would load the <em>cloud</em> development env (the Neon database), so prefer <code>npm start</code> locally.</p>
+<div class="box warn"><p>After any change to the schema or the front-end file list, run <code>npm test</code>. Two tests guard lists that are easy to forget (see <a href="#rules">section 8</a>).</p></div>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="arch">6. Architecture and file map</h2>
+<pre><code>server.js                  entry; imports 'express' for Vercel's detector, exports the app, listens locally
+vercel.json                framework: express, regions: [iad1]
+.vercelignore              keeps legacy/, tests, .env*, big images out of the upload
+server/
+  app.js                   Express app: lazy DB setup → /api/health → auth → routes → static → error handler
+  db.js                    pg Pool (DATABASE_URL or PG* env); ensureDatabase (local only); migrate() with advisory lock
+  auth.js                  APP_PASSWORD sign-in, HMAC cookie, 503 lock on Vercel when unset
+  storage.js               saveFile/readFile/deleteFile: Vercel Blob (private) or uploads/
+  validate.js              Validator class: collects per-field errors → 400 { error, fields }
+  migrations/00N_*.js      each exports a SQL string; index.js lists them in order
+  routes/                  recipes, bakes, starters, feedings, photos, backup
+public/                    served by Vercel's CDN in the cloud, express.static locally
+  index.html               shell + tab nav (Calculator, Recipes, Bakes, Starter, Settings)
+  manifest.webmanifest     PWA; start_url /index.html#/
+  sw.js                    service worker (network-first, photos cache-first); SHELL lists every JS file
+  css/app.css              all styles; design tokens at the top (light + dark)
+  js/app.js                hash router + sign-in gate + SW registration
+  js/api.js                fetch wrapper; 401 → 'bread:signed-out' event
+  js/ui.js                 h() element builder, fill(), toast, formatting, time and temperature helpers
+  js/calc.js               PURE formula math (tested)
+  js/timeline.js           PURE bake-day step logic (tested)
+  js/photos.js             browser resize → upload, thumbnail grid, viewer
+  js/views/*.js            one module per screen
+test/                      calc, timeline, migrations list, service-worker list
+legacy/                    original 2023–2025 files, never run; kept for reference</code></pre>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="data">7. Data model and API</h2>
+<div class="table-wrap"><table>
+  <tr><th>Table</th><th>Key columns</th><th>Notes</th></tr>
+  <tr><td><code>recipes</code></td><td>name, notes, basis (<code>dough</code>|<code>flour</code>), dough_mass, flour_mass, hydration, salt_pct, starter_pct, starter_hydration, flours JSONB <code>[{name,pct}]</code></td><td>Stores inputs only; grams are always calculated.</td></tr>
+  <tr><td><code>bakes</code></td><td>recipe_id (SET NULL), starter_id (SET NULL), formula JSONB snapshot, baked_on DATE, status (<code>active</code>|<code>done</code>), events JSONB <code>[{type,at}]</code>, bulk/proof/bake minutes, cold_proof, room/oven temp + temp_unit, rating 1–5, notes</td><td>Timer state lives in <code>events</code>; timings are derived on finish.</td></tr>
+  <tr><td><code>starters</code></td><td>name, flour, notes, archived</td><td></td></tr>
+  <tr><td><code>feedings</code></td><td>starter_id (CASCADE), fed_at, seed_g/flour_g/water_g, temp + temp_unit, in_warmer, peaked_at, rise_pct</td><td>"Rising" while <code>peaked_at</code> is null.</td></tr>
+  <tr><td><code>photos</code></td><td>bake_id (CASCADE), storage_key, content_type, width, height</td><td>Deleting a bake also deletes its files.</td></tr>
+  <tr><td><code>schema_migrations</code></td><td>name</td><td>Names are the original <code>.sql</code> filenames, e.g. <code>001_init.sql</code>.</td></tr>
+</table></div>
+<p><strong>API</strong> (JSON, camelCase; every route except health and session requires sign-in when a password is set):</p>
+<ul>
+  <li><code>GET /api/health</code>, <code>GET /api/session</code>, <code>POST /api/login</code>, <code>POST /api/logout</code></li>
+  <li><code>/api/recipes</code>, <code>/api/bakes</code>, <code>/api/starters</code>: list / get / create / update (full PUT) / delete. <code>/api/feedings</code>: get / create / update / delete.</li>
+  <li><code>POST /api/bakes/:id/photos</code> (raw image body, <code>?w=&amp;h=</code>), <code>GET|DELETE /api/photos/:id</code></li>
+  <li><code>GET /api/export</code>, <code>GET /api/export/bakes.csv</code>, <code>POST /api/import[?photos=keep]</code> (replaces everything)</li>
+</ul>
+<div class="box warn"><p><strong>PUT is a full replace.</strong> A bake update that omits <code>status</code> or <code>events</code> resets them to <code>done</code> and <code>[]</code>. Clients send the whole object (see <code>bake-form.js</code> and <code>timer.js</code>).</p></div>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="rules">8. Conventions and gotchas</h2>
+<ul>
+  <li><strong>snake_case ↔ camelCase happens only in each route's <code>toApi()</code> and params.</strong> The 2023 app's save bug was exactly this mismatch.</li>
+  <li><strong>New migration</strong>: add <code>server/migrations/006_name.js</code> exporting the SQL string, append <code>['006_name.sql', m006]</code> to <code>index.js</code>, never edit an applied one. A test checks the list. Migrations must be JS modules because <strong>Vercel only bundles imported files</strong> (the <code>.sql</code> files went missing in the first deploy).</li>
+  <li><strong>New front-end JS file</strong>: add it to <code>SHELL</code> in <code>public/sw.js</code> and bump <code>VERSION</code>. A test checks the list.</li>
+  <li><strong>Use <code>fill(el, …)</code>, not <code>el.replaceChildren(…)</code>.</strong> Views use <code>cond &amp;&amp; node</code>, and <code>replaceChildren</code> would print "false". Build DOM with <code>h()</code>; don't use <code>innerHTML</code> with user text.</li>
+  <li><strong>Keep the math pure</strong> (<code>calc.js</code>, <code>timeline.js</code>: no DOM, no fetch) and covered by <code>node --test</code>.</li>
+  <li><strong>Formula fields</strong> come from <code>FORMULA_KEYS</code>/<code>formulaOf()</code> in <code>calc.js</code>. Add new formula fields there.</li>
+  <li><strong>Vercel quirks</strong>: the root <code>server.js</code> must <code>import 'express'</code>; <code>/</code> reaches Express, which redirects to <code>/index.html</code>; <code>express.static</code> does nothing in the cloud; request bodies max out at 4.5 MB (photos are resized in the browser to about 1600 px first); migrations use <code>DATABASE_URL_UNPOOLED</code> because the advisory lock needs a real session.</li>
+  <li><strong>Design</strong>: an "enamelware kitchen" palette (tokens at the top of <code>app.css</code>). Crust brown is reserved for numbers you weigh, times and ratings. Fonts: Bricolage Grotesque (display and numbers) and Atkinson Hyperlegible (body). Phone-first, bottom tab bar under 640 px, dark mode supported. Chart colours were checked for colour-blind separation: warmer <code>#b5702a</code>/<code>#bf7a2a</code>, counter <code>#2f6db5</code>/<code>#4f8bd3</code>.</li>
+  <li><strong>Copy style</strong>: plain, sentence case, active verbs ("Log feeding", "Start a bake now"). Errors say what to do.</li>
+  <li><strong>Commits</strong>: one focused commit per feature on <code>main</code>, with a descriptive body. Don't push, deploy or change Vercel settings without the owner's go-ahead.</li>
+</ul>
+
+<!-- ------------------------------------------------------------------ -->
+<h2 id="owner">9. Working with the owner</h2>
+<ul>
+  <li>The owner is a returning hobby developer (this started as copy-paste coding) and prefers to <strong>learn by contributing small, meaningful pieces</strong>. Leave clear, scoped TODOs for decisions that are theirs (like <code>flourWarnings()</code>) and explain why choices were made.</li>
+  <li>They work on Windows (PowerShell and Git Bash), with Vercel CLI already signed in. The target device is Android.</li>
+  <li>Keep everything free-tier friendly. Ask before anything that costs money, creates accounts or resources, publishes, or sends anything outward.</li>
+</ul>
+
+<div class="box ok"><p><strong>Quick sanity check before you start:</strong> <code>git status</code> (clean apart from the owner's <code>calc.js</code> draft, if it's still unfinished), <code>npm test</code> (16 pass), <code>npm start</code> and open <code>http://localhost:3000</code>, then <code>curl https://bread-log-peach.vercel.app/api/health</code>.</p></div>
+
+</main>
+</body>
+</html>
